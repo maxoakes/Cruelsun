@@ -124,7 +124,7 @@ public class BurnHandler
 
             //if we get here, the armor is not protected in any way, and should take damage
             //every 1+(enchantment level of piece), the armor will take armorDamageRate damage
-            if (time%(TPS*(protectionAmount))==0) {
+            if (time%(TPS*(protectionAmount*Configs.CONFIGS.getEnchantmentProtectionMultiplier()))==0) {
                 armor.setDamage(armor.getDamage() + Configs.CONFIGS.getArmorDamageRate());
                 System.out.println(armor.getItem().getName().getString() + ": " + armor.getDamage() + "/" + armor.getMaxDamage()+" (EnLvl:"+protectionAmount+")");
                 if (armor.getMaxDamage() <= armor.getDamage()) armor.shrink(1);

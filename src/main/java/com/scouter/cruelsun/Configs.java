@@ -35,21 +35,25 @@ public class Configs {
     public final ForgeConfigSpec.IntValue armorDamageRate;
     public final ForgeConfigSpec.IntValue minLightToDamagePlayer;
     public final ForgeConfigSpec.IntValue burnTimeMultiplier;
+    public final ForgeConfigSpec.IntValue damageMultiplier;
+    public final ForgeConfigSpec.IntValue enchantmentProtectionMultiplier;
     public final ForgeConfigSpec.BooleanValue wetStopsBurn;
     public final ForgeConfigSpec.BooleanValue armorWorks;
     public final ForgeConfigSpec.BooleanValue enchantmentsWork;
     public final ForgeConfigSpec.BooleanValue potionsWork;
-    public final ForgeConfigSpec.IntValue damageMultiplier;
+
 
     public int getBurnSafetyTime() {return secondsAfterSpawnUntilBurn.get();}
     public int getArmorDamageRate() {return armorDamageRate.get();}
     public int getMinLightToDamagePlayer() {return minLightToDamagePlayer.get();}
     public int getBurnTimeMultiplier() {return burnTimeMultiplier.get();}
+    public int getDamageMultiplier() {return damageMultiplier.get();}
+    public int getEnchantmentProtectionMultiplier() {return enchantmentProtectionMultiplier.get();}
     public boolean doesWaterStopBurn() {return wetStopsBurn.get();}
     public boolean doesArmorWork() {return armorWorks.get();}
     public boolean doEnchantmentsWork() {return enchantmentsWork.get();}
     public boolean doPotionsWork() {return potionsWork.get();}
-    public int getDamageMultiplier() {return damageMultiplier.get();}
+
 
     Configs(ForgeConfigSpec.Builder builder) {
         builder.push("Configs");
@@ -80,6 +84,18 @@ public class Configs {
                         "Default is 1")
                 .defineInRange("burnTimeMultiplier", 1, 0, Integer.MAX_VALUE);
 
+        damageMultiplier = builder
+                .comment("Generally how much more deadly it is being outside.\n" +
+                        "Multiplies existing damage taken: (solarIntensity + 1) * getDamageMultiplier()\n" +
+                        "Default is 2. Anything more than 5 a quick death.")
+                .defineInRange("damageMultiplier", 2, 0, Integer.MAX_VALUE);
+
+        enchantmentProtectionMultiplier = builder
+                .comment("How much more effective are enchantments at protecting armor when outside?\n" +
+                        "Multiplies existing damage taken: (protectionAmount*getEnchantmentProtectionMultiplier())\n" +
+                        "Default is 1. Bigger numbers means that the armor gets damaged less frequently.")
+                .defineInRange("enchantmentProtectionMultiplier", 1, 0, Integer.MAX_VALUE);
+
         wetStopsBurn = builder
                 .comment("If true, the player will not burn or take damage when they are getting rained on, or if they are in the water.\n" +
                         "Default is true")
@@ -100,11 +116,6 @@ public class Configs {
                         "Default is true.")
                 .define("potionsWork", true);
 
-        damageMultiplier = builder
-                .comment("Generally how much more deadly it is being outside.\n" +
-                        "Multiplies existing damage taken: (solarIntensity + 1) * getDamageMultiplier()\n" +
-                        "Default is 2. Anything more than 5 a quick death.")
-                .defineInRange("damageMultiplier", 2, 0, Integer.MAX_VALUE);
         builder.pop();
     }
 }
