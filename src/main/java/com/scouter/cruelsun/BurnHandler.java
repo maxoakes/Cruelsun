@@ -23,10 +23,8 @@ import java.util.Map;
 public class BurnHandler
 {
     DamageSource damageSource = new DamageSource("cruelsun").setDamageBypassesArmor().setDifficultyScaled();
-    int armorDamageRate = 1;
-    int TPS = 20;
-    int waitToBurnTime = 10*TPS; //literal is in seconds
-    int minLightToDamagePlayer = 13;
+    public final int TPS = 20;
+    int waitToBurnTime = Configs.CONFIGS.getBurnSafetyTime()*TPS; //literal is in seconds
 
     @SubscribeEvent
     public void onPlayerTickEvent(PlayerTickEvent event)
@@ -36,7 +34,7 @@ public class BurnHandler
         if (player.getEntityWorld().getDimensionKey() != World.OVERWORLD) return; //this mod will only work in the Overworld
         if (player.isCreative() || player.isSpectator() || player.ticksExisted <= waitToBurnTime) return; //general safety
         if (event.side.isClient() || event.phase == TickEvent.Phase.END) return; //back-end safety
-        if (player.isWet()) return;
+        if (Configs.CONFIGS.doesWaterStopBurn() && player.isWet()) return;
 
         damageConditionCheck(player);
     }
@@ -48,31 +46,34 @@ public class BurnHandler
             long time = player.getEntityWorld().getDayTime()%24000;
 
             //damage the armor if they are not protected
-            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.HEAD),time);
-            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.CHEST),time);
-            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.LEGS),time);
-            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.FEET),time);
+            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.HEAD), time);
+            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.CHEST), time);
+            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.LEGS), time);
+            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.FEET), time);
 
-            //check if they are protected by armor or potions
+            //if the player is not protected by armor, and not protected by potions, then they are damaged
             if (!isProtectedByArmor(player) && !isProtectedByPotion(player)) damagePlayer(player);
         }
     }
 
     private boolean isSafeLocation(PlayerEntity player)
     {
-        //return player.world.canSeeSky(player.getPosition(); //easier mode
-        return player.world.getLightFor(LightType.SKY,player.getPosition()) < minLightToDamagePlayer; //variable hard-mode
+        return player.world.getLightFor(LightType.SKY,player.getPosition()) < Configs.CONFIGS.getMinLightToDamagePlayer(); //variable hard-mode
     }
 
     //check if they are protected by armor or potions
     private boolean isProtectedByPotion(PlayerEntity player)
     {
-        //check if the fire resistance buff is active on player
-        for (Map.Entry<Effect, EffectInstance> buff : player.getActivePotionMap().entrySet()) {
-            //System.out.println("K:" + buff.getKey() + " V:" + buff.getValue());
-            if (buff.getKey() == Effects.FIRE_RESISTANCE) {
-                //System.out.println("Player is protected via potion:"+buff.getKey());
-                return true;
+        //check if the configs allow for potions to be useful
+        if (Configs.CONFIGS.doPotionsWork())
+        {
+            //check if the fire resistance buff is active on player
+            for (Map.Entry<Effect, EffectInstance> buff : player.getActivePotionMap().entrySet()) {
+                //System.out.println("K:" + buff.getKey() + " V:" + buff.getValue());
+                if (buff.getKey() == Effects.FIRE_RESISTANCE) {
+                    //System.out.println("Player is protected via potion:"+buff.getKey());
+                    return true;
+                }
             }
         }
         //if we get here, there are no potions applied, or no fire resistance potions applied
@@ -84,7 +85,8 @@ public class BurnHandler
         return player.getItemStackFromSlot(EquipmentSlotType.HEAD).getItem() instanceof ArmorItem &&
                 player.getItemStackFromSlot(EquipmentSlotType.CHEST).getItem() instanceof ArmorItem &&
                 player.getItemStackFromSlot(EquipmentSlotType.LEGS).getItem() instanceof ArmorItem &&
-                player.getItemStackFromSlot(EquipmentSlotType.FEET).getItem() instanceof ArmorItem;
+                player.getItemStackFromSlot(EquipmentSlotType.FEET).getItem() instanceof ArmorItem &&
+                Configs.CONFIGS.doesArmorWork();
     }
 
     //try to damage the armor that is passed in
@@ -102,25 +104,28 @@ public class BurnHandler
             boolean isHazmat = armorName.contains("hazmat") || armorName.contains("rubber") || armorName.contains("scuba");
             if (isHazmat) protectionAmount = 3;
 
-            //check if it is an enchanted armor piece with fire protection
-            ListNBT armorEnchantments = armor.getEnchantmentTagList();
+            //do configs allow enchantments to work
+            if (Configs.CONFIGS.doEnchantmentsWork()) {
+                //check if it is an enchanted armor piece with fire protection
+                ListNBT armorEnchantments = armor.getEnchantmentTagList();
 
-            for (INBT enchantment : armorEnchantments) {
-                if (enchantment.getString().contains("fire_protection")) {
-                    //System.out.println("Armor protected via enchantment:"+enchantment.getString());
-                    try
-                    {
-                        protectionAmount += Integer.parseInt(enchantment.getString().replaceAll("\\D+",""));
-                        //System.out.println("E:" + enchantment.getString() + " Found Level: "+enchantedDamageRateMod);
+                for (INBT enchantment : armorEnchantments) {
+                    if (enchantment.getString().contains("fire_protection")) {
+                        //System.out.println("Armor protected via enchantment:"+enchantment.getString());
+                        try {
+                            protectionAmount += Integer.parseInt(enchantment.getString().replaceAll("\\D+", ""));
+                            //System.out.println("E:" + enchantment.getString() + " Found Level: "+enchantedDamageRateMod);
+                        } catch (Exception e) {
+                            System.out.println("Error parsing int in enchantment substring");
+                        }
                     }
-                    catch(Exception e) {System.out.println("Error parsing int in enchantment substring");}
                 }
             }
 
             //if we get here, the armor is not protected in any way, and should take damage
             //every 1+(enchantment level of piece), the armor will take armorDamageRate damage
             if (time%(TPS*(protectionAmount))==0) {
-                armor.setDamage(armor.getDamage() + armorDamageRate);
+                armor.setDamage(armor.getDamage() + Configs.CONFIGS.getArmorDamageRate());
                 System.out.println(armor.getItem().getName().getString() + ": " + armor.getDamage() + "/" + armor.getMaxDamage()+" (EnLvl:"+protectionAmount+")");
                 if (armor.getMaxDamage() <= armor.getDamage()) armor.shrink(1);
             }
@@ -130,13 +135,15 @@ public class BurnHandler
     private void damagePlayer(PlayerEntity player)
     {
         long time = player.getEntityWorld().getDayTime()%24000;
-        float solarIntensity = Math.max(6000-Math.abs((int)time-6000),0);
-        int burnTime = Math.round(solarIntensity/1000f);
-        double sunDamage = Math.ceil(solarIntensity/3000)+1;
-        System.out.println("@DayTick:"+time+" Intensity:"+solarIntensity+" Burntime:"+burnTime+" Damage:"+sunDamage);
+        if (time%TPS == 0) {
+            float solarIntensity = Math.max(6000 - Math.abs((int) time - 6000), 0);
+            int burnTime = Math.round(solarIntensity / 1000f);
+            double sunDamage = (Math.ceil(solarIntensity / 3000) + 1) * Configs.CONFIGS.getDamageMultiplier();
+            System.out.println("@DayTick:" + time + " Intensity:" + solarIntensity + " Burntime:" + burnTime + " Damage:" + sunDamage);
 
-        //damage every one second rather than every tick
-        if (time%TPS == 0) player.attackEntityFrom(damageSource, (float)sunDamage);
-        if (time <= 12000) player.setFire(burnTime);
+            //damage every one second rather than every tick
+            player.attackEntityFrom(damageSource, (float) sunDamage);
+            if (time <= 12000) player.setFire(burnTime * Configs.CONFIGS.getBurnTimeMultiplier());
+        }
     }
 }
