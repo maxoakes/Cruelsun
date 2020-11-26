@@ -20,9 +20,7 @@ public class Configs {
         loaded = true;
     }
 
-    public static boolean isLoaded() {
-        return loaded;
-    }
+    public static boolean isLoaded() {return loaded;}
 
     public static void onLoad(Runnable action) {
         if (loaded)
@@ -41,7 +39,7 @@ public class Configs {
     public final ForgeConfigSpec.BooleanValue armorWorks;
     public final ForgeConfigSpec.BooleanValue enchantmentsWork;
     public final ForgeConfigSpec.BooleanValue potionsWork;
-
+    public final ForgeConfigSpec.BooleanValue debug;
 
     public int getBurnSafetyTime() {return secondsAfterSpawnUntilBurn.get();}
     public int getArmorDamageRate() {return armorDamageRate.get();}
@@ -53,7 +51,7 @@ public class Configs {
     public boolean doesArmorWork() {return armorWorks.get();}
     public boolean doEnchantmentsWork() {return enchantmentsWork.get();}
     public boolean doPotionsWork() {return potionsWork.get();}
-
+    public boolean isDebugMode() {return debug.get();}
 
     Configs(ForgeConfigSpec.Builder builder) {
         builder.push("Configs");
@@ -115,6 +113,11 @@ public class Configs {
                 .comment("If true, fire resistance potions stop burning and damage from being outside.\n" +
                         "Default is true.")
                 .define("potionsWork", true);
+
+        debug = builder
+                .comment("Enable debug mode. Will spam the console with System.out.println info about damage taken\n" +
+                        "Default is false.")
+                .define("debug", false);
 
         builder.pop();
     }
