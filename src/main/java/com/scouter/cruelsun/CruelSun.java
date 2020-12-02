@@ -20,6 +20,7 @@ public class CruelSun
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Configs.spec);
         modBus.addListener(this::setup);
         forgeBus.register(new BurnHandler());
+        forgeBus.register(new WorldBurnHandler());
         modBus.addListener(this::onModConfigEvent);
         forgeBus.register(this);
     }

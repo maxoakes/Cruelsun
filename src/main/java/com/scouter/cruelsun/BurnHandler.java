@@ -23,12 +23,13 @@ import java.util.Map;
 public class BurnHandler
 {
     DamageSource damageSource = new DamageSource("cruelsun").setDamageBypassesArmor().setDifficultyScaled();
-    public final int TPS = 20;
+    private final int TPS = 20;
     int waitToBurnTime = Configs.CONFIGS.getBurnSafetyTime()*TPS; //literal is in seconds
 
     @SubscribeEvent
     public void onPlayerTickEvent(PlayerTickEvent event)
     {
+        if (!Configs.CONFIGS.doPlayerDamage()) return; //initial check to see if the configs even want to do damage to player
         if (!(event.player.getEntityWorld().getDayTime()%TPS==0)) return; //do not need to use the tick helper if nothing is happening this tick
         PlayerEntity player = event.player;
 
