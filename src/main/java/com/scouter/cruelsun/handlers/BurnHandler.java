@@ -1,5 +1,7 @@
-package com.scouter.cruelsun;
+package com.scouter.cruelsun.handlers;
 
+import com.scouter.cruelsun.Configs;
+import com.scouter.cruelsun.CruelSun;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;

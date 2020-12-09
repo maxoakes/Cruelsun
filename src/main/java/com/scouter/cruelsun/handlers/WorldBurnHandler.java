@@ -1,9 +1,13 @@
-package com.scouter.cruelsun;
+package com.scouter.cruelsun.handlers;
 
+import com.scouter.cruelsun.Configs;
+import com.scouter.cruelsun.CruelSun;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ClassInheritanceMultiMap;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -13,12 +17,17 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber(modid = CruelSun.MODID)
 public class WorldBurnHandler {
 
+    private final int chunkSize = 16;
+    private final double fireSpawnChancePerSecond = 1;
     private final int TPS = 20;
+    private final int radius = 10;
+    Random random = new Random();
 
     @SubscribeEvent
     public void onWorldTickEvent(TickEvent.WorldTickEvent event)
@@ -27,19 +36,18 @@ public class WorldBurnHandler {
 
         long time = event.world.getDayTime()%24000;
         if (!(time%TPS==0)) return;
-        //System.out.println("****in onWorldTickEvent:" + time);
+
+        System.out.println("onWorldTickEvent");
+        List<Chunk> loadedChunks = new ArrayList<>();
+        for (PlayerEntity p : event.world.getPlayers()) loadedChunks.addAll(getRadiusChunks(event.world, p, radius));
+        loadedChunks = loadedChunks.stream().distinct().collect(Collectors.toList()); //if this is run on the server, this will remove overlapping chunks if there are multiple players... I think
 
         /*
          * The following code is only used if the configs call for mobs to be damaged similar to the player
          * */
         if (Configs.CONFIGS.doMobDamage())
         {
-            System.out.println();
-            List<Chunk> loadedChunks = new ArrayList<>();
-            for (PlayerEntity p : event.world.getPlayers()) loadedChunks.addAll(getRadiusChunks(event.world, p, 10));
-            loadedChunks = loadedChunks.stream().distinct().collect(Collectors.toList()); //if this is run on the server, this will remove overlapping chunks if there are multiple players... I think
             List<Entity> livingMobs = new ArrayList<>();
-
             for (Chunk c : loadedChunks) {
                 //System.out.println(c.getPos());
                 for (ClassInheritanceMultiMap<Entity> entityList : c.getEntityLists()) {
@@ -61,11 +69,28 @@ public class WorldBurnHandler {
             //damage each mob
             for (Entity e : livingMobs)
             {
-                System.out.println(e);
+                //System.out.println(e);
                 damageEntity(e);
             }
         }
-        if (Configs.CONFIGS.doWorldDamage()) return;
+
+        /*
+         * The following code is only used if the configs call for flammable blocks to be damaged
+         * */
+        if (Configs.CONFIGS.doWorldDamage())
+        {
+            if (loadedChunks.isEmpty()) return;
+            Chunk c = loadedChunks.get(random.nextInt(loadedChunks.size()));
+            if (random.nextDouble()>fireSpawnChancePerSecond) return;
+            int x = ((c.getPos().x)*chunkSize)+random.nextInt(chunkSize);
+            int z = ((c.getPos().z)*chunkSize)+random.nextInt(chunkSize);
+            int y = 100;
+            BlockPos pos = new BlockPos(x, y, z);
+            while (event.world.isAirBlock(pos)) pos = pos.down(); //moves the block downward until it is not in the air anymore
+            pos = pos.up(); //places on the surface of the aforementioned position
+            event.world.setBlockState(pos,Blocks.FIRE.getDefaultState());
+            System.out.println("Added: "+c.getPos()+": "+x+","+z);
+        }
     }
 
     public static ArrayList<Chunk> getRadiusChunks(World w, PlayerEntity p,int radius)
@@ -85,6 +110,6 @@ public class WorldBurnHandler {
 	public void damageEntity(Entity mob)
     {
         mob.setGlowing(true);
-        mob.setFire(1);
+        mob.setFire(Configs.CONFIGS.getBurnTimeMultiplier());
     }
 }
