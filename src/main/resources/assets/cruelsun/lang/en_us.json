@@ -1,3 +1,7 @@
 {
-  "death.attack.cruelsun": "%1$s died by intense solar radiation"
+  "death.attack.cruelsun": "%1$s died by intense solar radiation",
+  "generator.minecraft.cruelsun": "Scorched World",
+  "biome.cruelsun.biome_scorched_forest": "Scorched Forest",
+  "biome.cruelsun.biome_scorched_hills": "Scorched Foothills",
+  "biome.cruelsun.biome_scorched_plains": "Scorched Floodplains"
 }

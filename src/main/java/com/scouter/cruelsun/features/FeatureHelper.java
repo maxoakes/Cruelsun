@@ -1,6 +1,8 @@
 package com.scouter.cruelsun.features;
 
 import com.scouter.cruelsun.CruelSun;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -11,9 +13,12 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.Features;
 import net.minecraft.world.gen.feature.IFeatureConfig;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
-public class FeatureInit {
+public class FeatureHelper {
 
     /*
         Feature initialization
@@ -72,5 +77,16 @@ public class FeatureInit {
             }
         }
         return flag;
+    }
+
+    public static boolean isOnGrass(IWorld world, BlockPos pos)
+    {
+        List<BlockState> grassBlocks = new ArrayList<>(Arrays.asList(
+                Blocks.GRASS_BLOCK.getDefaultState(),
+                Blocks.DIRT.getDefaultState(),
+                Blocks.COARSE_DIRT.getDefaultState()
+        ));
+
+        return grassBlocks.contains(world.getBlockState(pos.down()));
     }
 }

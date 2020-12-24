@@ -25,7 +25,8 @@ public class StumpSmall extends Feature<NoFeatureConfig> {
         int stumpLength = rand.nextInt(2) + 1;
 
         // check area clear
-        if (!FeatureInit.isAreaSuitable(world, rand, pos, 3, 3, 2)) return false;
+        if (!FeatureHelper.isOnGrass(world,pos)) return false;
+        if (!FeatureHelper.isAreaSuitable(world, rand, pos, 3, 3, 2)) return false;
 
         // determine wood type
         BlockState logState;
@@ -40,9 +41,6 @@ public class StumpSmall extends Feature<NoFeatureConfig> {
                 break;
             case 9:
                 logState = Blocks.SPRUCE_LOG.getDefaultState();
-                break;
-            case 10:
-                logState = Blocks.JUNGLE_LOG.getDefaultState();
                 break;
         }
 

@@ -64,8 +64,8 @@ public class Configs {
 
         secondsAfterSpawnUntilBurn = builder
                 .comment("Seconds after spawning (into server or after respawn) that damage and/or burning starts.\n" +
-                        "20 is default.")
-                .defineInRange("secondsAfterSpawnUntilBurn", 20, 0, Integer.MAX_VALUE);
+                        "60 is default.")
+                .defineInRange("secondsAfterSpawnUntilBurn", 60, 0, Integer.MAX_VALUE);
 
         armorDamageRate = builder
                 .comment("Whenever an armor piece gets damaged, it takes this many durability damage.\n"+

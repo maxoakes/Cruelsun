@@ -1,6 +1,6 @@
 package com.scouter.cruelsun.biomes;
 
-import com.scouter.cruelsun.features.FeatureInit;
+import com.scouter.cruelsun.features.FeatureHelper;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.world.biome.*;
@@ -9,26 +9,26 @@ import net.minecraft.world.gen.feature.Features;
 import net.minecraft.world.gen.feature.structure.StructureFeatures;
 import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilders;
 
-public class BiomeScorched
+public class BiomeScorchedForest
 {
     Biome.Builder biomeBuilder = new Biome.Builder();
     BiomeGenerationSettings.Builder genBuilder = new BiomeGenerationSettings.Builder();
 
-    public BiomeScorched() {
+    public BiomeScorchedForest() {
         biomeBuilder.withGenerationSettings(configureGeneration(genBuilder))
                 .precipitation(Biome.RainType.NONE)
-                .category(Biome.Category.SAVANNA)
-                .depth(0.1F) //starting height of the terrain above sea level
-                .scale(0.0F) //vertical scale of terrain. larger is more 'amplified'
-                .temperature(2F)
-                .downfall(0F)
+                .category(Biome.Category.FOREST)
+                .depth(BiomeHelper.BASE_DEPTH)
+                .scale(BiomeHelper.BASE_SCALE)
+                .temperature(BiomeHelper.BASE_TEMP)
+                .downfall(BiomeHelper.BASE_DOWNFALL)
                 .setEffects((new BiomeAmbience.Builder())
-                        .setWaterColor(0x304182)
-                        .setWaterFogColor(0x826EF5)
-                        .setFogColor(0x804821)//ab492e
-                        .withSkyColor(0x5b4fff)//6f4fff
-                        .withGrassColor(0xc6ab72)
-                        .withFoliageColor(0xbf964e)
+                        .setWaterColor(BiomeHelper.BASE_WATER_COLOR)
+                        .setWaterFogColor(BiomeHelper.BASE_WATER_FOG_COLOR)
+                        .setFogColor(BiomeHelper.BASE_FOG_COLOR)
+                        .withSkyColor(BiomeHelper.BASE_SKY_COLOR)
+                        .withGrassColor(BiomeHelper.BASE_GRASS_COLOR)
+                        .withFoliageColor(BiomeHelper.BASE_FOLIAGE_COLOR)
                         .setMoodSound(MoodSoundAmbience.DEFAULT_CAVE)
                         .build())
                 .withMobSpawnSettings(MobSpawnInfo.EMPTY);
@@ -48,10 +48,10 @@ public class BiomeScorched
         builder.withFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, Features.DISK_SAND);
         builder.withFeature(GenerationStage.Decoration.LAKES, Features.LAKE_LAVA);
 
-        builder.withFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, FeatureInit.FALLEN_LOG_SMALL);//trunks of normal trees
-        builder.withFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, FeatureInit.STUMP_SMALL);//log stumps or bottom half of trees
-        builder.withFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, FeatureInit.STUMP_SMALL);//log stumps or bottom half of trees
-        builder.withFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, FeatureInit.FALLEN_LOG_LARGE);//trunks of large trees
+        builder.withFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, FeatureHelper.FALLEN_LOG_SMALL);//trunks of normal trees
+        builder.withFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, FeatureHelper.STUMP_SMALL);//log stumps or bottom half of trees
+        builder.withFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, FeatureHelper.STUMP_SMALL);//log stumps or bottom half of trees
+        builder.withFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, FeatureHelper.FALLEN_LOG_LARGE);//trunks of large trees
 
 
         //Vegetation

@@ -10,7 +10,11 @@ public class BiomeRegister
 {
     public static final DeferredRegister<Biome> BIOMES = DeferredRegister.create(ForgeRegistries.BIOMES, CruelSun.MODID);
 
-    public static final RegistryObject<Biome> BIOME_SCORCHED = BIOMES.register("biome_scorched", ()
-            -> new BiomeScorched().getBiome());
+    public static final RegistryObject<Biome> BIOME_SCORCHED_FOREST = BIOMES.register("biome_scorched_forest", ()
+            -> new BiomeScorchedForest().getBiome());
+    public static final RegistryObject<Biome> BIOME_SCORCHED_HILLS = BIOMES.register("biome_scorched_hills", ()
+            -> new BiomeScorchedHills().getBiome());
+    public static final RegistryObject<Biome> BIOME_SCORCHED_PLAINS = BIOMES.register("biome_scorched_plains", ()
+            -> new BiomeScorchedPlains().getBiome());
 
 }

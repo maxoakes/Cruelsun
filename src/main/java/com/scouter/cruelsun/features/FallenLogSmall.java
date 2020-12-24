@@ -28,13 +28,15 @@ public class FallenLogSmall extends Feature<NoFeatureConfig> {
         int stumpLength = rand.nextInt(3) + 1;
         int fallDistance = rand.nextInt(2) + 2;
 
+
         // check area clear
+        if (!FeatureHelper.isOnGrass(world,pos)) return false;
         if (goingX) {
-            if (!FeatureInit.isAreaSuitable(world, rand, pos, logLength+fallDistance, 3, 2)) {
+            if (!FeatureHelper.isAreaSuitable(world, rand, pos, logLength+fallDistance, 3, 2)) {
                 return false;
             }
         } else {
-            if (!FeatureInit.isAreaSuitable(world, rand, pos, 3, logLength+fallDistance, 2)) {
+            if (!FeatureHelper.isAreaSuitable(world, rand, pos, 3, logLength+fallDistance, 2)) {
                 return false;
             }
         }
@@ -69,14 +71,14 @@ public class FallenLogSmall extends Feature<NoFeatureConfig> {
             branchState = logState.with(RotatedPillarBlock.AXIS, Direction.Axis.Z);
 
             for (int lx = 0; lx < logLength; lx++) {
-                world.setBlockState(FeatureInit.posOnGround(world,pos.add(lx+fallDistance, 0, 0)), logState, 3);
+                world.setBlockState(FeatureHelper.posOnGround(world,pos.add(lx+fallDistance, 0, 0)), logState, 3);
             }
         } else {
             logState = logState.with(RotatedPillarBlock.AXIS, Direction.Axis.Z);
             branchState = logState.with(RotatedPillarBlock.AXIS, Direction.Axis.X);
 
             for (int lz = 0; lz < logLength; lz++) {
-                world.setBlockState(FeatureInit.posOnGround(world,pos.add(0, 0, lz+fallDistance)), logState, 3);
+                world.setBlockState(FeatureHelper.posOnGround(world,pos.add(0, 0, lz+fallDistance)), logState, 3);
             }
         }
         // possibly make branch

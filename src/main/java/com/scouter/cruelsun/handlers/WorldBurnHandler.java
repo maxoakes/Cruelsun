@@ -37,7 +37,6 @@ public class WorldBurnHandler {
         long time = event.world.getDayTime()%24000;
         if (!(time%TPS==0)) return;
 
-        System.out.println("onWorldTickEvent");
         List<Chunk> loadedChunks = new ArrayList<>();
         for (PlayerEntity p : event.world.getPlayers()) loadedChunks.addAll(getRadiusChunks(event.world, p, radius));
         loadedChunks = loadedChunks.stream().distinct().collect(Collectors.toList()); //if this is run on the server, this will remove overlapping chunks if there are multiple players... I think
@@ -69,7 +68,6 @@ public class WorldBurnHandler {
             //damage each mob
             for (Entity e : livingMobs)
             {
-                //System.out.println(e);
                 damageEntity(e);
             }
         }
@@ -84,12 +82,12 @@ public class WorldBurnHandler {
             if (random.nextDouble()>fireSpawnChancePerSecond) return;
             int x = ((c.getPos().x)*chunkSize)+random.nextInt(chunkSize);
             int z = ((c.getPos().z)*chunkSize)+random.nextInt(chunkSize);
-            int y = 100;
+            int y = 255;
             BlockPos pos = new BlockPos(x, y, z);
             while (event.world.isAirBlock(pos)) pos = pos.down(); //moves the block downward until it is not in the air anymore
             pos = pos.up(); //places on the surface of the aforementioned position
             event.world.setBlockState(pos,Blocks.FIRE.getDefaultState());
-            System.out.println("Added: "+c.getPos()+": "+x+","+z);
+            if (Configs.CONFIGS.isDebugMode()) System.out.println("Added fire block to: "+c.getPos()+": "+x+","+z);
         }
     }
 
@@ -109,7 +107,6 @@ public class WorldBurnHandler {
 
 	public void damageEntity(Entity mob)
     {
-        mob.setGlowing(true);
         mob.setFire(Configs.CONFIGS.getBurnTimeMultiplier());
     }
 }

@@ -33,7 +33,7 @@ public class FallenLogLarge extends Feature<NoFeatureConfig> {
 
     private boolean makeLog4Z(IWorld world, Random rand, BlockPos pos) {
         // +Z 4x4 log
-        if (!FeatureInit.isAreaSuitable(world, rand, pos, 9, 3, 4)) {
+        if (!FeatureHelper.isAreaSuitable(world, rand, pos, 9, 3, 4)) {
             return false;
         }
 
@@ -110,7 +110,7 @@ public class FallenLogLarge extends Feature<NoFeatureConfig> {
      */
     private boolean makeLog4X(IWorld world, Random rand, BlockPos pos) {
         // +Z 4x4 log
-        if (!FeatureInit.isAreaSuitable(world, rand, pos, 4, 3, 9)) {
+        if (!FeatureHelper.isAreaSuitable(world, rand, pos, 4, 3, 9)) {
             return false;
         }
 
