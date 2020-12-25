@@ -1,8 +1,6 @@
 package com.scouter.cruelsun.biomes;
 
 import com.scouter.cruelsun.features.FeatureHelper;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
 import net.minecraft.world.biome.*;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.Features;
@@ -15,6 +13,8 @@ public class BiomeScorchedHills
     BiomeGenerationSettings.Builder genBuilder = new BiomeGenerationSettings.Builder();
 
     public BiomeScorchedHills() {
+        MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
+        DefaultBiomeFeatures.withBatsAndHostiles(mobspawninfo$builder);
         biomeBuilder.withGenerationSettings(configureGeneration(genBuilder))
                 .precipitation(Biome.RainType.NONE)
                 .category(Biome.Category.SAVANNA)
@@ -30,8 +30,7 @@ public class BiomeScorchedHills
                         .withGrassColor(BiomeHelper.BASE_GRASS_COLOR)
                         .withFoliageColor(BiomeHelper.BASE_FOLIAGE_COLOR)
                         .setMoodSound(MoodSoundAmbience.DEFAULT_CAVE)
-                        .build())
-                .withMobSpawnSettings(MobSpawnInfo.EMPTY);
+                        .build()).withMobSpawnSettings(mobspawninfo$builder.copy());
     }
 
     protected BiomeGenerationSettings configureGeneration(BiomeGenerationSettings.Builder builder) {
@@ -60,19 +59,6 @@ public class BiomeScorchedHills
         DefaultBiomeFeatures.withLavaAndWaterSprings(builder);
 
         return builder.build();
-    }
-
-    protected void configureMobSpawns(MobSpawnInfo.Builder builder) {
-        // Entities
-        builder.withSpawner(EntityClassification.AMBIENT, new MobSpawnInfo.Spawners(EntityType.BAT, 10, 8, 8));
-        builder.withSpawner(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.SPIDER, 100, 4, 4));
-        builder.withSpawner(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ZOMBIE, 95, 4, 4));
-        builder.withSpawner(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ZOMBIE_VILLAGER, 5, 1, 1));
-        builder.withSpawner(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.SKELETON, 100, 4, 4));
-        builder.withSpawner(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.CREEPER, 100, 4, 4));
-        builder.withSpawner(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.SLIME, 100, 4, 4));
-        builder.withSpawner(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ENDERMAN, 10, 1, 4));
-        builder.withSpawner(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.WITCH, 5, 1, 1));
     }
 
     public Biome getBiome()

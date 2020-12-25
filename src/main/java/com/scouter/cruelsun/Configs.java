@@ -20,29 +20,29 @@ public class Configs {
         loaded = true;
     }
 
+    //IDE says these are unused, but we can't be too sure with Forge...
     public static boolean isLoaded() {return loaded;}
 
     public static void onLoad(Runnable action) {
-        if (loaded)
-            action.run();
-        else
-            loadActions.add(action);
+        if (loaded) action.run();
+        else loadActions.add(action);
     }
 
-    public final ForgeConfigSpec.IntValue secondsAfterSpawnUntilBurn;
-    public final ForgeConfigSpec.IntValue armorDamageRate;
-    public final ForgeConfigSpec.IntValue minLightToDamagePlayer;
-    public final ForgeConfigSpec.IntValue burnTimeMultiplier;
-    public final ForgeConfigSpec.IntValue damageMultiplier;
-    public final ForgeConfigSpec.IntValue enchantmentProtectionMultiplier;
-    public final ForgeConfigSpec.BooleanValue wetStopsBurn;
-    public final ForgeConfigSpec.BooleanValue armorWorks;
-    public final ForgeConfigSpec.BooleanValue enchantmentsWork;
-    public final ForgeConfigSpec.BooleanValue potionsWork;
-    public final ForgeConfigSpec.BooleanValue debug;
-    public final ForgeConfigSpec.BooleanValue doPlayerDamage;
-    public final ForgeConfigSpec.BooleanValue doWorldDamage;
-    public final ForgeConfigSpec.BooleanValue doMobDamage;
+    private final ForgeConfigSpec.IntValue secondsAfterSpawnUntilBurn;
+    private final ForgeConfigSpec.IntValue armorDamageRate;
+    private final ForgeConfigSpec.IntValue minLightToDamagePlayer;
+    private final ForgeConfigSpec.IntValue burnTimeMultiplier;
+    private final ForgeConfigSpec.IntValue damageMultiplier;
+    private final ForgeConfigSpec.IntValue enchantmentProtectionMultiplier;
+    private final ForgeConfigSpec.BooleanValue wetStopsBurn;
+    private final ForgeConfigSpec.BooleanValue armorWorks;
+    private final ForgeConfigSpec.BooleanValue enchantmentsWork;
+    private final ForgeConfigSpec.BooleanValue potionsWork;
+    private final ForgeConfigSpec.BooleanValue debug;
+    private final ForgeConfigSpec.BooleanValue doPlayerDamage;
+    private final ForgeConfigSpec.BooleanValue doWorldDamage;
+    private final ForgeConfigSpec.BooleanValue doMobDamage;
+    private final ForgeConfigSpec.BooleanValue doFirstDayProtection;
 
     public int getBurnSafetyTime() {return secondsAfterSpawnUntilBurn.get();}
     public int getArmorDamageRate() {return armorDamageRate.get();}
@@ -58,6 +58,7 @@ public class Configs {
     public boolean doPlayerDamage() {return doPlayerDamage.get();}
     public boolean doWorldDamage() {return  doWorldDamage.get();}
     public boolean doMobDamage() {return doMobDamage.get();}
+    public boolean doFirstDayProtection() {return doFirstDayProtection.get();}
 
     Configs(ForgeConfigSpec.Builder builder) {
         builder.push("Configs");
@@ -84,7 +85,7 @@ public class Configs {
         burnTimeMultiplier = builder
                 .comment("When outside during the day, how many times longer should the player burn once they are in a safe place?\n" +
                         "Multiplies existing burn time: player.setFire(burnTime * getBurnTimeMultiplier()\n" +
-                        "0 is turning off burning all together.\n" +
+                        "0 is turning off fire-burning damage all together.\n" +
                         "Default is 1")
                 .defineInRange("burnTimeMultiplier", 1, 0, Integer.MAX_VALUE);
 
@@ -98,7 +99,7 @@ public class Configs {
                 .comment("How much more effective are enchantments at protecting armor when outside?\n" +
                         "Multiplies existing damage taken: (protectionAmount*getEnchantmentProtectionMultiplier())\n" +
                         "Default is 1. Bigger numbers means that the armor gets damaged less frequently.")
-                .defineInRange("enchantmentProtectionMultiplier", 1, 0, Integer.MAX_VALUE);
+                .defineInRange("enchantmentProtectionMultiplier", 1, 1, Integer.MAX_VALUE);
 
         wetStopsBurn = builder
                 .comment("If true, the player will not burn or take damage when they are getting rained on, or if they are in the water.\n" +
@@ -120,11 +121,6 @@ public class Configs {
                         "Default is true.")
                 .define("potionsWork", true);
 
-        debug = builder
-                .comment("Enable debug mode. Will spam the console with System.out.println info about damage taken\n" +
-                        "Default is false.")
-                .define("debug", false);
-
         doPlayerDamage = builder
                 .comment("Enables the main part of the mod; damaging the player when they are on the surface.\n"+
                         "Mainly for debugging purposes.\n" +
@@ -132,14 +128,25 @@ public class Configs {
                 .define("doPlayerDamage", true);
 
         doWorldDamage = builder
-                .comment("Enables the secondary part of the mod; catching fire to flammable surface blocks.\n" +
+                .comment("Enables a secondary part of the mod; setting random surface blocks on fire.\n" +
                         "Default is true.")
                 .define("doWorldDamage", true);
 
         doMobDamage = builder
-                .comment("Enables the secondary part of the mod; catching fire to mobs that are exposed to the surface.\n" +
+                .comment("Enables a secondary part of the mod; catching fire to mobs that are exposed to the surface.\n" +
                         "Default is true.")
                 .define("doMobDamage", true);
+
+        doFirstDayProtection = builder
+                .comment("If true, makes it so there is no damage done to player on the first day of the world.\n" +
+                        "Players joining world late, or resuming a save file will not benefit from this setting.\n" +
+                        "Default is true.")
+                .define("doFirstDayProtection", true);
+
+        debug = builder
+                .comment("Enable debug mode. Will spam the console with System.out.println info about damage taken\n" +
+                        "Default is false.")
+                .define("debug", false);
 
         builder.pop();
     }

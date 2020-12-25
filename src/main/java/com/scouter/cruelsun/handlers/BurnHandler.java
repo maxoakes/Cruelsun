@@ -26,7 +26,7 @@ public class BurnHandler
 {
     DamageSource damageSource = new DamageSource("cruelsun").setDamageBypassesArmor().setDifficultyScaled();
     private final int TPS = 20;
-    int waitToBurnTime = Configs.CONFIGS.getBurnSafetyTime()*TPS; //literal is in seconds
+    int waitToBurnTime = Configs.CONFIGS.getBurnSafetyTime()*TPS;
 
     @SubscribeEvent
     public void onPlayerTickEvent(PlayerTickEvent event)
@@ -36,6 +36,7 @@ public class BurnHandler
         PlayerEntity player = event.player;
 
         if (player.getEntityWorld().getDimensionKey() != World.OVERWORLD) return; //this mod will only work in the Overworld
+        if (Configs.CONFIGS.doFirstDayProtection() && player.world.getGameTime() < 13188) return; //protection for the first day of the world
         if (player.isCreative() || player.isSpectator() || player.ticksExisted <= waitToBurnTime) return; //general safety
         if (event.side.isClient() || event.phase == TickEvent.Phase.END) return; //back-end safety
         if (Configs.CONFIGS.doesWaterStopBurn() && player.isWet()) return; //check if the player is wet this tick, or check if the configs even support that
@@ -46,7 +47,7 @@ public class BurnHandler
     {
         if (!isSafeLocation(player))
         {
-            if (Configs.CONFIGS.isDebugMode()) System.out.println("*&*&*&*&*&*&*&*&*&* Starting check is new tick... info below");
+            if (Configs.CONFIGS.isDebugMode()) System.out.println("*&*&*&*&*&*&* Starting damageConditionCheck is new tick... info below");
             long time = player.getEntityWorld().getDayTime()%24000;
             if (Configs.CONFIGS.isDebugMode()) System.out.println("Tick time of day: "+time);
             //damage the armor if they are not protected
@@ -108,7 +109,7 @@ public class BurnHandler
                 if (Configs.CONFIGS.isDebugMode()) System.out.println("A:"+armorName+" isDamageable, setting fire.");
                 try {
                     assert armor.getAttachedEntity() != null;
-                    armor.getAttachedEntity().setFire(Configs.CONFIGS.getBurnTimeMultiplier());}
+                    armor.getAttachedEntity().setFire(1+Configs.CONFIGS.getBurnTimeMultiplier());}
                 catch (Exception ignored) {}
                 return;
             }
@@ -119,6 +120,7 @@ public class BurnHandler
             //check if it is a modded hazmat-type armor piece
 
             //TODO: add config list for armor items that might be to protect the player additionally
+            //this list should cover for all of the modded hazmat-type armor
             boolean isHazmat = armorName.contains("hazmat") || armorName.contains("rubber") || armorName.contains("scuba");
             if (isHazmat) protectionAmount = 3;
 
@@ -128,7 +130,7 @@ public class BurnHandler
                 //check if it is an enchanted armor piece with fire protection
                 ListNBT armorEnchantments = armor.getEnchantmentTagList();
                 for (INBT enchantment : armorEnchantments) {
-                    if (Configs.CONFIGS.isDebugMode()) System.out.println("ArmEnch: "+armorName+": " + enchantment.getString());
+                    if (Configs.CONFIGS.isDebugMode()) System.out.println("ArmorEnch: "+armorName+": " + enchantment.getString());
                     if (enchantment.getString().contains("fire_protection")) {
                         //extract the level of the enchantment from the toString, and add it to the base protection amount of the armor
                         try {
@@ -143,7 +145,7 @@ public class BurnHandler
 
             //if we get here, the armor is not protected in any way, and should take damage
             //every 1+(enchantment level of piece) seconds, the armor will take armorDamageRate damage
-            if (time%(TPS*(protectionAmount*Configs.CONFIGS.getEnchantmentProtectionMultiplier()))==0) {
+            if (time%(TPS*((long) protectionAmount * Configs.CONFIGS.getEnchantmentProtectionMultiplier()))==0) {
                 armor.setDamage(armor.getDamage() + Configs.CONFIGS.getArmorDamageRate());
                 if (Configs.CONFIGS.isDebugMode()) System.out.println(armorName+": "+armor.getDamage()+"/"+armor.getMaxDamage()+" (EnLvl:"+protectionAmount+")");
                 if (armor.getMaxDamage() <= armor.getDamage()) armor.shrink(1); //if we are at the maximum damage level, destroy the armor

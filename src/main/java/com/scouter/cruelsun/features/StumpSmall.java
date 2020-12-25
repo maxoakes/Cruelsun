@@ -18,13 +18,11 @@ public class StumpSmall extends Feature<NoFeatureConfig> {
     }
 
     @Override
-    public boolean generate(ISeedReader world, ChunkGenerator generator, Random rand, BlockPos pos, NoFeatureConfig config) {
-        // determine direction
-        boolean goingX = rand.nextBoolean();
-
+    public boolean generate(ISeedReader world, ChunkGenerator generator, Random rand, BlockPos pos, NoFeatureConfig config)
+    {
         int stumpLength = rand.nextInt(2) + 1;
 
-        // check area clear
+        // check area clear, and check if it is on a block that a tree would be
         if (!FeatureHelper.isOnGrass(world,pos)) return false;
         if (!FeatureHelper.isAreaSuitable(world, rand, pos, 3, 3, 2)) return false;
 

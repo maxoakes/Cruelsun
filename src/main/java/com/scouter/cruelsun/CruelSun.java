@@ -53,6 +53,7 @@ public class CruelSun
         Configs.setLoaded();
     }
 
+    //register the Scorched Earth world type
     public void registerWorldType()
     {
         CSWorldType csWorldType = new CSWorldType();
@@ -62,21 +63,16 @@ public class CruelSun
         Registry.register(Registry.BIOME_PROVIDER_CODEC, "cruelsun", CSBiomeProvider.CODEC);
     }
 
+    //register the biomes
     private void setupBiomes(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             for (Biome b : BiomeHelper.SCORCHED_BIOMES)
             {
-                setupBiome(b, BiomeManager.BiomeType.WARM, 0, BiomeDictionary.Type.HOT, BiomeDictionary.Type.DRY, BiomeDictionary.Type.OVERWORLD);
+                BiomeDictionary.addTypes(key(b), BiomeDictionary.Type.OVERWORLD);
+                BiomeManager.addBiome(BiomeManager.BiomeType.WARM, new BiomeManager.BiomeEntry(key(b), 0));
+                //set weight to 0 because the scorched biomes should be only in the custom world type
             }
-            //setupBiome(BiomeRegister.BIOME_SCORCHED_FOREST.get(), BiomeManager.BiomeType.DESERT, 1, BiomeDictionary.Type.HOT, BiomeDictionary.Type.DRY, BiomeDictionary.Type.OVERWORLD);
-            //setupBiome(BiomeRegister.BIOME_SCORCHED_HILLS.get(), BiomeManager.BiomeType.DESERT, 1, BiomeDictionary.Type.HOT, BiomeDictionary.Type.DRY, BiomeDictionary.Type.OVERWORLD);
-            //setupBiome(BiomeRegister.BIOME_SCORCHED_PLAINS.get(), BiomeManager.BiomeType.DESERT, 1, BiomeDictionary.Type.HOT, BiomeDictionary.Type.DRY, BiomeDictionary.Type.OVERWORLD);
-        });
-    }
-
-    private void setupBiome(final Biome biome, final BiomeManager.BiomeType biomeType, final int weight, final BiomeDictionary.Type... types) {
-        BiomeDictionary.addTypes(key(biome), types);
-        BiomeManager.addBiome(biomeType, new BiomeManager.BiomeEntry(key(biome), weight));
+       });
     }
 
     private static RegistryKey<Biome> key(final Biome biome) {

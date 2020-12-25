@@ -31,6 +31,7 @@ public class FallenLogLarge extends Feature<NoFeatureConfig> {
         return rand.nextBoolean() ? makeLog4Z(world, rand, pos) : makeLog4X(world, rand, pos);
     }
 
+    //borrowed from the Twilight Forest team for making the large fallen log feature
     private boolean makeLog4Z(IWorld world, Random rand, BlockPos pos) {
         // +Z 4x4 log
         if (!FeatureHelper.isAreaSuitable(world, rand, pos, 9, 3, 4)) {

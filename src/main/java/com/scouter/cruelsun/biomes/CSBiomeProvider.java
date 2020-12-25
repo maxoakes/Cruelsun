@@ -9,8 +9,6 @@ import net.minecraft.util.registry.RegistryLookupCodec;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.biome.provider.BiomeProvider;
-import net.minecraft.world.gen.layer.Layer;
-import net.minecraft.world.gen.layer.LayerUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -28,7 +26,6 @@ public class CSBiomeProvider extends BiomeProvider
                     RegistryLookupCodec.getLookUpCodec(Registry.BIOME_KEY).forGetter((biomeProvider) -> biomeProvider.lookupRegistry)
             ).apply(builder, builder.stable(CSBiomeProvider::new)));
 
-    private final Layer genBiomes;
     private final Registry<Biome> lookupRegistry;
     private static final List<RegistryKey<Biome>> scorchedBiomesKeys = ImmutableList.of(
             RegistryKey.getOrCreateKey(Registry.BIOME_KEY, BiomeRegister.BIOME_SCORCHED_FOREST.getId()),
@@ -44,8 +41,6 @@ public class CSBiomeProvider extends BiomeProvider
         System.out.println("Scorched world biome list: "+(scorchedBiomesKeys.stream().map(lookupRegistry::getOrThrow).collect(Collectors.toList())));
         this.seed = seed;
         this.lookupRegistry = lookupRegistry;
-
-        this.genBiomes = LayerUtil.func_237215_a_(seed, false, 8, 4);
     }
 
     @Override

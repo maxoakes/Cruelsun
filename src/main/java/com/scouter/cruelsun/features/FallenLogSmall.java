@@ -21,13 +21,12 @@ public class FallenLogSmall extends Feature<NoFeatureConfig> {
 
     @Override
     public boolean generate(ISeedReader world, ChunkGenerator generator, Random rand, BlockPos pos, NoFeatureConfig config) {
-        // determine direction
-        boolean goingX = rand.nextBoolean();
 
+        // determine log characteristics
+        boolean goingX = rand.nextBoolean();
         int logLength = rand.nextInt(3) + 2;
         int stumpLength = rand.nextInt(3) + 1;
         int fallDistance = rand.nextInt(2) + 2;
-
 
         // check area clear
         if (!FeatureHelper.isOnGrass(world,pos)) return false;

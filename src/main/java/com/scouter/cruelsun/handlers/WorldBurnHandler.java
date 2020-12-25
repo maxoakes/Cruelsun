@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Mod.EventBusSubscriber(modid = CruelSun.MODID)
 public class WorldBurnHandler {
 
-    private final int chunkSize = 16;
+    private final int CHUNK_SIZE = 16;
     private final double fireSpawnChancePerSecond = 1;
     private final int TPS = 20;
     private final int radius = 10;
@@ -48,7 +48,7 @@ public class WorldBurnHandler {
         {
             List<Entity> livingMobs = new ArrayList<>();
             for (Chunk c : loadedChunks) {
-                //System.out.println(c.getPos());
+
                 for (ClassInheritanceMultiMap<Entity> entityList : c.getEntityLists()) {
                     for (Entity e : entityList)
                     {
@@ -66,10 +66,7 @@ public class WorldBurnHandler {
             }
 
             //damage each mob
-            for (Entity e : livingMobs)
-            {
-                damageEntity(e);
-            }
+            for (Entity e : livingMobs) damageEntity(e);
         }
 
         /*
@@ -80,13 +77,13 @@ public class WorldBurnHandler {
             if (loadedChunks.isEmpty()) return;
             Chunk c = loadedChunks.get(random.nextInt(loadedChunks.size()));
             if (random.nextDouble()>fireSpawnChancePerSecond) return;
-            int x = ((c.getPos().x)*chunkSize)+random.nextInt(chunkSize);
-            int z = ((c.getPos().z)*chunkSize)+random.nextInt(chunkSize);
+            int x = ((c.getPos().x)* CHUNK_SIZE)+random.nextInt(CHUNK_SIZE);
+            int z = ((c.getPos().z)* CHUNK_SIZE)+random.nextInt(CHUNK_SIZE);
             int y = 255;
             BlockPos pos = new BlockPos(x, y, z);
             while (event.world.isAirBlock(pos)) pos = pos.down(); //moves the block downward until it is not in the air anymore
             pos = pos.up(); //places on the surface of the aforementioned position
-            event.world.setBlockState(pos,Blocks.FIRE.getDefaultState());
+            event.world.setBlockState(pos,Blocks.FIRE.getDefaultState()); //add the fire block
             if (Configs.CONFIGS.isDebugMode()) System.out.println("Added fire block to: "+c.getPos()+": "+x+","+z);
         }
     }
