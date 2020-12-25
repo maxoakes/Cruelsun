@@ -20,7 +20,7 @@ public class BiomeScorchedPlains
         DefaultBiomeFeatures.withBatsAndHostiles(mobspawninfo$builder);
         biomeBuilder.withGenerationSettings(configureGeneration(genBuilder))
                 .precipitation(Biome.RainType.NONE)
-                .category(Biome.Category.FOREST)
+                .category(Biome.Category.NONE)
                 .depth(BiomeHelper.BASE_DEPTH*-1f)
                 .scale(BiomeHelper.BASE_SCALE)
                 .temperature(BiomeHelper.BASE_TEMP)

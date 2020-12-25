@@ -17,7 +17,7 @@ public class BiomeScorchedHills
         DefaultBiomeFeatures.withBatsAndHostiles(mobspawninfo$builder);
         biomeBuilder.withGenerationSettings(configureGeneration(genBuilder))
                 .precipitation(Biome.RainType.NONE)
-                .category(Biome.Category.SAVANNA)
+                .category(Biome.Category.NONE)
                 .depth(BiomeHelper.BASE_DEPTH*6f)
                 .scale(BiomeHelper.BASE_SCALE+.2f)
                 .temperature(BiomeHelper.BASE_TEMP)

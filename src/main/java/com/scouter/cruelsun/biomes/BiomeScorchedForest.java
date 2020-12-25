@@ -17,7 +17,7 @@ public class BiomeScorchedForest
         DefaultBiomeFeatures.withBatsAndHostiles(mobspawninfo$builder);
         biomeBuilder.withGenerationSettings(configureGeneration(genBuilder))
                 .precipitation(Biome.RainType.NONE)
-                .category(Biome.Category.FOREST)
+                .category(Biome.Category.NONE)
                 .depth(BiomeHelper.BASE_DEPTH)
                 .scale(BiomeHelper.BASE_SCALE)
                 .temperature(BiomeHelper.BASE_TEMP)
