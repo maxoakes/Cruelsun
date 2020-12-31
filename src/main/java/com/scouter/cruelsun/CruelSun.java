@@ -49,9 +49,7 @@ public class CruelSun
         forgeBus.register(this);
     }
 
-    private void onModConfigEvent(final ModConfig.ModConfigEvent event) {
-        Configs.setLoaded();
-    }
+    //private void onModConfigEvent(final ModConfig.ModConfigEvent event) {Configs.setLoaded();}
 
     //register the Scorched Earth world type
     public void registerWorldType()
@@ -78,5 +76,6 @@ public class CruelSun
     private static RegistryKey<Biome> key(final Biome biome) {
         return RegistryKey.getOrCreateKey(ForgeRegistries.Keys.BIOMES, Objects.requireNonNull(ForgeRegistries.BIOMES.getKey(biome), "Biome registry name was null"));
     }
+
 }
 

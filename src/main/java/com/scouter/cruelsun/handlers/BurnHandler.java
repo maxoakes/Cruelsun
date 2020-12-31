@@ -26,7 +26,6 @@ public class BurnHandler
 {
     DamageSource damageSource = new DamageSource("cruelsun").setDamageBypassesArmor().setDifficultyScaled();
     private final int TPS = 20;
-    int waitToBurnTime = Configs.CONFIGS.getBurnSafetyTime()*TPS;
 
     @SubscribeEvent
     public void onPlayerTickEvent(PlayerTickEvent event)
@@ -36,8 +35,9 @@ public class BurnHandler
         PlayerEntity player = event.player;
 
         if (player.getEntityWorld().getDimensionKey() != World.OVERWORLD) return; //this mod will only work in the Overworld
-        if (Configs.CONFIGS.doFirstDayProtection() && player.world.getGameTime() < 13188) return; //protection for the first day of the world
-        if (player.isCreative() || player.isSpectator() || player.ticksExisted <= waitToBurnTime) return; //general safety
+        if (event.player.world.isNightTime() && Configs.CONFIGS.doDayDamageOnly()) return; //check if it is night time, and if the configs call for damage during only the day
+        if (Configs.CONFIGS.doFirstDayProtection() && (player.world.getGameTime() < 13188)) return; //protection for the first day of the world
+        if (player.isCreative() || player.isSpectator() || (player.ticksExisted <= Configs.CONFIGS.getBurnSafetyTime()*TPS)) return; //general safety
         if (event.side.isClient() || event.phase == TickEvent.Phase.END) return; //back-end safety
         if (Configs.CONFIGS.doesWaterStopBurn() && player.isWet()) return; //check if the player is wet this tick, or check if the configs even support that
         damageConditionCheck(player); //do the damage

@@ -34,6 +34,7 @@ public class Configs {
     private final ForgeConfigSpec.IntValue burnTimeMultiplier;
     private final ForgeConfigSpec.IntValue damageMultiplier;
     private final ForgeConfigSpec.IntValue enchantmentProtectionMultiplier;
+    private final ForgeConfigSpec.BooleanValue dayDamageOnly;
     private final ForgeConfigSpec.BooleanValue wetStopsBurn;
     private final ForgeConfigSpec.BooleanValue armorWorks;
     private final ForgeConfigSpec.BooleanValue enchantmentsWork;
@@ -50,6 +51,7 @@ public class Configs {
     public int getBurnTimeMultiplier() {return burnTimeMultiplier.get();}
     public int getDamageMultiplier() {return damageMultiplier.get();}
     public int getEnchantmentProtectionMultiplier() {return enchantmentProtectionMultiplier.get();}
+    public boolean doDayDamageOnly() {return dayDamageOnly.get();}
     public boolean doesWaterStopBurn() {return wetStopsBurn.get();}
     public boolean doesArmorWork() {return armorWorks.get();}
     public boolean doEnchantmentsWork() {return enchantmentsWork.get();}
@@ -101,6 +103,11 @@ public class Configs {
                         "Default is 1. Bigger numbers means that the armor gets damaged less frequently.")
                 .defineInRange("enchantmentProtectionMultiplier", 1, 1, Integer.MAX_VALUE);
 
+        dayDamageOnly = builder
+                .comment("If true, damage is only applied to things during the day. Useful if you are playing as a vampire, I guess. If false. damage is applied 24/7.\n" +
+                        "Default is false")
+                .define("dayDamageOnly", false);
+
         wetStopsBurn = builder
                 .comment("If true, the player will not burn or take damage when they are getting rained on, or if they are in the water.\n" +
                         "Default is true")
@@ -129,8 +136,8 @@ public class Configs {
 
         doWorldDamage = builder
                 .comment("Enables a secondary part of the mod; setting random surface blocks on fire.\n" +
-                        "Default is true.")
-                .define("doWorldDamage", true);
+                        "Default is false.")
+                .define("doWorldDamage", false);
 
         doMobDamage = builder
                 .comment("Enables a secondary part of the mod; catching fire to mobs that are exposed to the surface.\n" +

@@ -35,6 +35,7 @@ public class WorldBurnHandler {
         if (event.world.getDimensionKey() != World.OVERWORLD || event.side.isClient() || event.phase == TickEvent.Phase.END) return;
 
         long time = event.world.getDayTime()%24000;
+        if (event.world.isNightTime() && Configs.CONFIGS.doDayDamageOnly()) return;
         if (!(time%TPS==0)) return;
 
         List<Chunk> loadedChunks = new ArrayList<>();
