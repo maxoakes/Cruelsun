@@ -2,6 +2,7 @@ package com.scouter.cruelsun.handlers;
 
 import com.scouter.cruelsun.Configs;
 import com.scouter.cruelsun.CruelSun;
+import com.scouter.cruelsun.commands.CommandSetBurn;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
@@ -36,7 +37,12 @@ public class BurnHandler
 
         if (player.getEntityWorld().getDimensionKey() != World.OVERWORLD) return; //this mod will only work in the Overworld
         if (event.player.world.isNightTime() && Configs.CONFIGS.doDayDamageOnly()) return; //check if it is night time, and if the configs call for damage during only the day
-        if (Configs.CONFIGS.doFirstDayProtection() && (player.world.getGameTime() < 13188)) return; //protection for the first day of the world
+
+        if (CommandSetBurn.getCommandState() == CommandSetBurn.CommandState.PAUSE) return; //check if command has been activated this session
+        if (player.world.getGameTime() < Configs.CONFIGS.ticksToFirstBurn() &&
+                (CommandSetBurn.getCommandState() != CommandSetBurn.CommandState.START)) return; //protection for the first day of the world
+        //if the command has been triggered to start the burn, the ticksToFirstBurn will be ignored
+
         if (player.isCreative() || player.isSpectator() || (player.ticksExisted <= Configs.CONFIGS.getBurnSafetyTime()*TPS)) return; //general safety
         if (event.side.isClient() || event.phase == TickEvent.Phase.END) return; //back-end safety
         if (Configs.CONFIGS.doesWaterStopBurn() && player.isWet()) return; //check if the player is wet this tick, or check if the configs even support that

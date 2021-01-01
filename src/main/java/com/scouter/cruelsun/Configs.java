@@ -34,6 +34,7 @@ public class Configs {
     private final ForgeConfigSpec.IntValue burnTimeMultiplier;
     private final ForgeConfigSpec.IntValue damageMultiplier;
     private final ForgeConfigSpec.IntValue enchantmentProtectionMultiplier;
+    private final ForgeConfigSpec.IntValue ticksToFirstBurn;
     private final ForgeConfigSpec.BooleanValue dayDamageOnly;
     private final ForgeConfigSpec.BooleanValue wetStopsBurn;
     private final ForgeConfigSpec.BooleanValue armorWorks;
@@ -43,7 +44,6 @@ public class Configs {
     private final ForgeConfigSpec.BooleanValue doPlayerDamage;
     private final ForgeConfigSpec.BooleanValue doWorldDamage;
     private final ForgeConfigSpec.BooleanValue doMobDamage;
-    private final ForgeConfigSpec.BooleanValue doFirstDayProtection;
 
     public int getBurnSafetyTime() {return secondsAfterSpawnUntilBurn.get();}
     public int getArmorDamageRate() {return armorDamageRate.get();}
@@ -51,6 +51,7 @@ public class Configs {
     public int getBurnTimeMultiplier() {return burnTimeMultiplier.get();}
     public int getDamageMultiplier() {return damageMultiplier.get();}
     public int getEnchantmentProtectionMultiplier() {return enchantmentProtectionMultiplier.get();}
+    public int ticksToFirstBurn() {return ticksToFirstBurn.get();}
     public boolean doDayDamageOnly() {return dayDamageOnly.get();}
     public boolean doesWaterStopBurn() {return wetStopsBurn.get();}
     public boolean doesArmorWork() {return armorWorks.get();}
@@ -60,7 +61,6 @@ public class Configs {
     public boolean doPlayerDamage() {return doPlayerDamage.get();}
     public boolean doWorldDamage() {return  doWorldDamage.get();}
     public boolean doMobDamage() {return doMobDamage.get();}
-    public boolean doFirstDayProtection() {return doFirstDayProtection.get();}
 
     Configs(ForgeConfigSpec.Builder builder) {
         builder.push("Configs");
@@ -144,11 +144,10 @@ public class Configs {
                         "Default is true.")
                 .define("doMobDamage", true);
 
-        doFirstDayProtection = builder
-                .comment("If true, makes it so there is no damage done to player on the first day of the world.\n" +
-                        "Players joining world late, or resuming a save file will not benefit from this setting.\n" +
-                        "Default is true.")
-                .define("doFirstDayProtection", true);
+        ticksToFirstBurn = builder
+                .comment("How many ticks until damage starts.\n"+
+                        "Default is 13188 (which is sunset of first day)")
+                .defineInRange("ticksToFirstBurn", 13188, 0, Integer.MAX_VALUE);
 
         debug = builder
                 .comment("Enable debug mode. Will spam the console with System.out.println info about damage taken\n" +

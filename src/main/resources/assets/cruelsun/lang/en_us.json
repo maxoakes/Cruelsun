@@ -3,5 +3,11 @@
   "generator.minecraft.cruelsun": "Scorched World",
   "biome.cruelsun.biome_scorched_forest": "Scorched Forest",
   "biome.cruelsun.biome_scorched_hills": "Scorched Foothills",
-  "biome.cruelsun.biome_scorched_plains": "Scorched Floodplains"
+  "biome.cruelsun.biome_scorched_plains": "Scorched Floodplains",
+  "cruelsun.command.start.help.start": "start: Start the burning of players, mobs and world, whichever the configs allow to be burnt",
+  "cruelsun.command.start.help.pause": "pause: Stop all burning until server reset",
+  "cruelsun.command.start.help.resume": "resume: Default upon server start. Burning will not occur until the number of ticks that the world has existed exceeds \"ticksToFirstBurn\" in the config file",
+  "cruelsun.command.start": "CruelSun burning has been enabled",
+  "cruelsun.command.pause": "CruelSun burning has been paused",
+  "cruelsun.command.resume": "CruelSun burning has been resumed"
 }

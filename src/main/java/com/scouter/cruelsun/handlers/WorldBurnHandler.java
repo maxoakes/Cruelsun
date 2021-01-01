@@ -2,6 +2,7 @@ package com.scouter.cruelsun.handlers;
 
 import com.scouter.cruelsun.Configs;
 import com.scouter.cruelsun.CruelSun;
+import com.scouter.cruelsun.commands.CommandSetBurn;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -35,7 +36,13 @@ public class WorldBurnHandler {
         if (event.world.getDimensionKey() != World.OVERWORLD || event.side.isClient() || event.phase == TickEvent.Phase.END) return;
 
         long time = event.world.getDayTime()%24000;
-        if (event.world.isNightTime() && Configs.CONFIGS.doDayDamageOnly()) return;
+        if (event.world.isNightTime() && Configs.CONFIGS.doDayDamageOnly()) return; //does night cause damage too?
+
+        if (CommandSetBurn.getCommandState() == CommandSetBurn.CommandState.PAUSE) return; //check if command has been activated this session
+        if ((event.world.getGameTime() < Configs.CONFIGS.ticksToFirstBurn()) &&
+                (CommandSetBurn.getCommandState() != CommandSetBurn.CommandState.START)) return; //protection for the first day of the world
+        //if the command has been triggered to start the burn, the ticksToFirstBurn will be ignored
+
         if (!(time%TPS==0)) return;
 
         List<Chunk> loadedChunks = new ArrayList<>();

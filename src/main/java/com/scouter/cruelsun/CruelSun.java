@@ -4,6 +4,7 @@ import com.scouter.cruelsun.biomes.BiomeHelper;
 import com.scouter.cruelsun.biomes.BiomeRegister;
 import com.scouter.cruelsun.biomes.CSBiomeProvider;
 import com.scouter.cruelsun.biomes.CSWorldType;
+import com.scouter.cruelsun.commands.CommandSetBurn;
 import com.scouter.cruelsun.features.FeatureRegister;
 import com.scouter.cruelsun.handlers.BurnHandler;
 import com.scouter.cruelsun.handlers.WorldBurnHandler;
@@ -14,6 +15,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeManager;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -40,22 +42,26 @@ public class CruelSun
         //Register Handlers
         forgeBus.register(new BurnHandler());
         forgeBus.register(new WorldBurnHandler());
+        forgeBus.addListener(this::registerCommands);
+        forgeBus.register(this);
 
         //Register Objects
         FeatureRegister.FEATURES.register(modBus);
         BiomeRegister.BIOMES.register(modBus);
         registerWorldType();
 
-        forgeBus.register(this);
     }
 
-    //private void onModConfigEvent(final ModConfig.ModConfigEvent event) {Configs.setLoaded();}
+    //register commands
+    public void registerCommands(RegisterCommandsEvent event)
+    {
+        CommandSetBurn.register(event.getDispatcher());
+    }
 
     //register the Scorched Earth world type
     public void registerWorldType()
     {
         CSWorldType csWorldType = new CSWorldType();
-        System.out.println("Enqueue Provider Setup");
         csWorldType.setRegistryName(new ResourceLocation("cruelsun"));
         ForgeRegistries.WORLD_TYPES.register(csWorldType);
         Registry.register(Registry.BIOME_PROVIDER_CODEC, "cruelsun", CSBiomeProvider.CODEC);
