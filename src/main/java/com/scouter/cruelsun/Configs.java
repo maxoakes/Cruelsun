@@ -1,5 +1,6 @@
 package com.scouter.cruelsun;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class Configs {
     private final ForgeConfigSpec.IntValue damageMultiplier;
     private final ForgeConfigSpec.IntValue enchantmentProtectionMultiplier;
     private final ForgeConfigSpec.IntValue ticksToFirstBurn;
+    private final ForgeConfigSpec.IntValue energyArmorDrainRate;
     private final ForgeConfigSpec.BooleanValue dayDamageOnly;
     private final ForgeConfigSpec.BooleanValue wetStopsBurn;
     private final ForgeConfigSpec.BooleanValue armorWorks;
@@ -44,6 +46,7 @@ public class Configs {
     private final ForgeConfigSpec.BooleanValue doPlayerDamage;
     private final ForgeConfigSpec.BooleanValue doWorldDamage;
     private final ForgeConfigSpec.BooleanValue doMobDamage;
+    private final ForgeConfigSpec.ConfigValue<List<? extends String>> hazmatArmorStrings;
 
     public int getBurnSafetyTime() {return secondsAfterSpawnUntilBurn.get();}
     public int getArmorDamageRate() {return armorDamageRate.get();}
@@ -52,6 +55,7 @@ public class Configs {
     public int getDamageMultiplier() {return damageMultiplier.get();}
     public int getEnchantmentProtectionMultiplier() {return enchantmentProtectionMultiplier.get();}
     public int ticksToFirstBurn() {return ticksToFirstBurn.get();}
+    public int getEnergyArmorDrainRate() {return energyArmorDrainRate.get();}
     public boolean doDayDamageOnly() {return dayDamageOnly.get();}
     public boolean doesWaterStopBurn() {return wetStopsBurn.get();}
     public boolean doesArmorWork() {return armorWorks.get();}
@@ -61,14 +65,15 @@ public class Configs {
     public boolean doPlayerDamage() {return doPlayerDamage.get();}
     public boolean doWorldDamage() {return  doWorldDamage.get();}
     public boolean doMobDamage() {return doMobDamage.get();}
+    public List<? extends String> getHazmatStrings() {return hazmatArmorStrings.get();}
 
     Configs(ForgeConfigSpec.Builder builder) {
         builder.push("Configs");
 
         secondsAfterSpawnUntilBurn = builder
                 .comment("Seconds after spawning (into server or after respawn) that damage and/or burning starts.\n" +
-                        "60 is default.")
-                .defineInRange("secondsAfterSpawnUntilBurn", 60, 0, Integer.MAX_VALUE);
+                        "45 is default.")
+                .defineInRange("secondsAfterSpawnUntilBurn", 45, 0, Integer.MAX_VALUE);
 
         armorDamageRate = builder
                 .comment("Whenever an armor piece gets damaged, it takes this many durability damage.\n"+
@@ -102,6 +107,11 @@ public class Configs {
                         "Multiplies existing damage taken: (protectionAmount*getEnchantmentProtectionMultiplier())\n" +
                         "Default is 1. Bigger numbers means that the armor gets damaged less frequently.")
                 .defineInRange("enchantmentProtectionMultiplier", 1, 1, Integer.MAX_VALUE);
+
+        energyArmorDrainRate = builder
+                .comment("How much of energy armor should be drained every tick if exposed to the sun?\n" +
+                        "Default is 10000.")
+                .defineInRange("energyArmorDrainRate", 10000, 0, Integer.MAX_VALUE);
 
         dayDamageOnly = builder
                 .comment("If true, damage is only applied to things during the day. Useful if you are playing as a vampire, I guess. If false. damage is applied 24/7.\n" +
@@ -153,6 +163,11 @@ public class Configs {
                 .comment("Enable debug mode. Will spam the console with System.out.println info about damage taken\n" +
                         "Default is false.")
                 .define("debug", false);
+
+        hazmatArmorStrings = builder
+                .comment("List of keywords in an armor piece that are considered 'hazmat'. These will offer more base protection in the sun.\n"+
+                        "Default is: 'hazmat', 'rubber','scuba'")
+                .defineList("hazmatArmorStrings", ImmutableList.of("hazmat","rubber","scuba"), it -> it instanceof String);
 
         builder.pop();
     }

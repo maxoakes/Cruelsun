@@ -15,6 +15,9 @@ import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -53,14 +56,13 @@ public class BurnHandler
     {
         if (!isSafeLocation(player))
         {
-            if (Configs.CONFIGS.isDebugMode()) System.out.println("*&*&*&*&*&*&* Starting damageConditionCheck is new tick... info below");
             long time = player.getEntityWorld().getDayTime()%24000;
-            if (Configs.CONFIGS.isDebugMode()) System.out.println("Tick time of day: "+time);
+            if (Configs.CONFIGS.isDebugMode()) System.out.println("*** Starting damageConditionCheck is new tick@"+time+"... info below");
             //damage the armor if they are not protected
-            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.HEAD), time);
-            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.CHEST), time);
-            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.LEGS), time);
-            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.FEET), time);
+            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.HEAD), time, player);
+            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.CHEST), time, player);
+            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.LEGS), time, player);
+            damageSingleArmor(player.getItemStackFromSlot(EquipmentSlotType.FEET), time, player);
 
             //if the player is not protected by armor, and not protected by potions, then they are damaged
             if (!isProtectedByArmor(player) && !isProtectedByPotion(player)) damagePlayer(player);
@@ -70,7 +72,7 @@ public class BurnHandler
     private boolean isSafeLocation(PlayerEntity player)
     {
         //if the player is in a block that is "dark" enough, eg. in a light level less than what is in the configs, then they are "safe"
-        if (Configs.CONFIGS.isDebugMode()) System.out.println("Light:"+player.world.getLightFor(LightType.SKY,player.getPosition())+"/15 C:"+Configs.CONFIGS.getMinLightToDamagePlayer());
+        if (Configs.CONFIGS.isDebugMode()) System.out.println("Light:"+player.world.getLightFor(LightType.SKY,player.getPosition())+"/15 Config: >"+Configs.CONFIGS.getMinLightToDamagePlayer());
         return player.world.getLightFor(LightType.SKY,player.getPosition()) < Configs.CONFIGS.getMinLightToDamagePlayer();
     }
 
@@ -103,58 +105,114 @@ public class BurnHandler
     }
 
     //try to damage the armor that is passed in
-    private void damageSingleArmor(ItemStack armor, long time)
+    private void damageSingleArmor(ItemStack armor, long time, PlayerEntity player)
     {
-        //check if the things in the armor slot is actually armor, otherwise it is air and nothing should be done
-        if (armor.getItem() instanceof ArmorItem)
+        //check if the things in the armor slot is actually armor, otherwise it is air (or a pumpkin...) and nothing should be done
+        if (!(armor.getItem() instanceof ArmorItem)) return;
+
+        String armorName = armor.getItem().getName().getString().toLowerCase();
+
+        //check if armor is damageable
+        if (armor.isDamageable())
         {
-            String armorName = armor.getItem().getName().getString().toLowerCase();
-            //if the armor is not damageable... I don't know how to access it's energy level if it is charged armor, so just set the player on fire!
-            if (!armor.isDamageable())
-            {
-                if (Configs.CONFIGS.isDebugMode()) System.out.println("A:"+armorName+" isDamageable, setting fire.");
-                try {
-                    assert armor.getAttachedEntity() != null;
-                    armor.getAttachedEntity().setFire(1+Configs.CONFIGS.getBurnTimeMultiplier());}
-                catch (Exception ignored) {}
-                return;
-            }
+            //if the armor is damageable...
+            if (Configs.CONFIGS.isDebugMode()) System.out.println(armorName + " is damageable.");
 
             //base amount that durability will be taken from the armor each tick check
             int protectionAmount = 1;
 
             //check if it is a modded hazmat-type armor piece
+            if (Configs.CONFIGS.isDebugMode()) System.out.println("Config list of keywords: " + Configs.CONFIGS.getHazmatStrings());
+            for (String keyword : Configs.CONFIGS.getHazmatStrings()) {
+                if (Configs.CONFIGS.isDebugMode())
+                    System.out.println("Checking for keyword '" + keyword + "' in '" + armorName + "'");
+                if (armorName.contains(keyword)) {
+                    //if the armor is a hazmat-type armor piece, increase its protection value
+                    protectionAmount = 3;
+                    if (Configs.CONFIGS.isDebugMode()) System.out.println("Confirmed " + armorName + " isHazmat type because config:" + keyword);
+                }
+            }
 
-            //TODO: add config list for armor items that might be to protect the player additionally
-            //this list should cover for all of the modded hazmat-type armor
-            boolean isHazmat = armorName.contains("hazmat") || armorName.contains("rubber") || armorName.contains("scuba");
-            if (isHazmat) protectionAmount = 3;
-
+            //check if the armor is enchanted with fire protection
             //do configs allow enchantments to work
-            if (Configs.CONFIGS.doEnchantmentsWork())
-            {
-                //check if it is an enchanted armor piece with fire protection
+            if (Configs.CONFIGS.doEnchantmentsWork()) {
                 ListNBT armorEnchantments = armor.getEnchantmentTagList();
                 for (INBT enchantment : armorEnchantments) {
-                    if (Configs.CONFIGS.isDebugMode()) System.out.println("ArmorEnch: "+armorName+": " + enchantment.getString());
+                    if (Configs.CONFIGS.isDebugMode()) System.out.println("ArmorEnch: " + armorName + ": " + enchantment.getString());
                     if (enchantment.getString().contains("fire_protection")) {
-                        //extract the level of the enchantment from the toString, and add it to the base protection amount of the armor
                         try {
+                            //extract the level of the enchantment from the toString, and add it to the base protection amount of the armor
                             protectionAmount += Integer.parseInt(enchantment.getString().replaceAll("\\D+", ""));
-                            if (Configs.CONFIGS.isDebugMode()) System.out.println("Fire protection found on "+armorName);
+                            if (Configs.CONFIGS.isDebugMode())
+                                System.out.println("Fire protection found on " + armorName);
                         } catch (Exception e) {
-                            System.out.println("CruelSun: Error parsing int in enchantment substring. How did we get here?!");
+                            System.out.println("Error parsing int in enchantment substring. How did we get here?!");
                         }
                     }
                 }
             }
 
-            //if we get here, the armor is not protected in any way, and should take damage
-            //every 1+(enchantment level of piece) seconds, the armor will take armorDamageRate damage
-            if (time%(TPS*((long) protectionAmount * Configs.CONFIGS.getEnchantmentProtectionMultiplier()))==0) {
+            //every 'protectionAmount' seconds, the armor will take armorDamageRate damage
+            if (time % (TPS * ((long) protectionAmount * Configs.CONFIGS.getEnchantmentProtectionMultiplier())) == 0)
+            {
                 armor.setDamage(armor.getDamage() + Configs.CONFIGS.getArmorDamageRate());
-                if (Configs.CONFIGS.isDebugMode()) System.out.println(armorName+": "+armor.getDamage()+"/"+armor.getMaxDamage()+" (EnLvl:"+protectionAmount+")");
-                if (armor.getMaxDamage() <= armor.getDamage()) armor.shrink(1); //if we are at the maximum damage level, destroy the armor
+                if (Configs.CONFIGS.isDebugMode()) System.out.println("Damaging armor: "+armorName + ": " + armor.getDamage() + "/" + armor.getMaxDamage() + " (protection:" + protectionAmount + ")");
+                if (armor.getMaxDamage() <= armor.getDamage())
+                    armor.shrink(1); //if we are at the maximum damage level, destroy the armor
+            }
+        }
+        else
+        {
+            //if the armor is not damageable...
+            if (Configs.CONFIGS.isDebugMode()) System.out.println("A:"+armorName+" is not damageable");
+
+            //check if it uses Forge Energy
+            if (armor.getCapability(CapabilityEnergy.ENERGY).isPresent())
+            {
+                try {
+                    if (Configs.CONFIGS.isDebugMode()) System.out.println(armorName + " has energy");
+
+                    //if it uses energy, try to drain an amount from it
+                    LazyOptional<IEnergyStorage> optional = armor.getCapability(CapabilityEnergy.ENERGY);
+                    if (optional.isPresent())
+                    {
+                        IEnergyStorage energyStorage = optional.orElseThrow(IllegalStateException::new);
+                        if (Configs.CONFIGS.isDebugMode()) System.out.println("canReceive:"+energyStorage.canReceive()+" canExtract:"+energyStorage.canExtract());
+
+                        //if the armor can have power extracted, 'damage' it by taking away some stored energy
+                        if (energyStorage.canExtract())
+                        {
+                            if (Configs.CONFIGS.isDebugMode()) System.out.println("canExtract:"+energyStorage.canExtract()+". Extracting energy from armor.");
+                            energyStorage.extractEnergy(Configs.CONFIGS.getEnergyArmorDrainRate(), false);
+                            if (Configs.CONFIGS.isDebugMode()) System.out.println("Damaged " + Configs.CONFIGS.getEnergyArmorDrainRate() + ". Now " + energyStorage.getEnergyStored() + "/" + energyStorage.getMaxEnergyStored());
+                        }
+                        //if the armor cannot have power extracted, give damage to player... *cough* Mekanism Mekasuit
+                        else
+                        {
+                            if (Configs.CONFIGS.isDebugMode()) System.out.println("canExtract:"+energyStorage.canExtract()+". Damaging player directly.");
+                            catchFireToPlayer(player, 2); //player.attackEntityFrom(new DamageSource("cruelsun.energyarmor"), 2);
+                        }
+
+                        //if after the damaging of the armor, it becomes fully drained, catch the player on fire
+                        if (energyStorage.getEnergyStored() == 0)
+                        {
+                            if (Configs.CONFIGS.isDebugMode()) System.out.println(armorName+" is out of charge. Player is not protected. Setting fire.");
+                            catchFireToPlayer(player, 2);
+                        }
+                    }
+                }
+                //if we get here, something weird happened
+                catch (Exception e)
+                {
+                    System.out.println("Exception caught trying to drain armor");
+                    catchFireToPlayer(player, 2);
+                }
+            }
+            else
+            {
+                //if the armor does not have energy storage and is not damageable, set fire to the player
+                if (Configs.CONFIGS.isDebugMode()) System.out.println(armorName+" does not have energy, and is not damageable. Just set fire to player");
+                catchFireToPlayer(player, 2);
             }
         }
     }
@@ -166,9 +224,14 @@ public class BurnHandler
         float solarIntensity = Math.max(6000 - Math.abs((int) time - 6000), 0);
         int burnTime = Math.round(solarIntensity / 1000f);
         double sunDamage = (Math.ceil(solarIntensity / 3000) + 1) * Configs.CONFIGS.getDamageMultiplier();
-        if (Configs.CONFIGS.isDebugMode()) System.out.println("@DayTick:" + time + " Intensity:" + solarIntensity + " Burntime:" + burnTime + " Damage:" + sunDamage);
+        if (Configs.CONFIGS.isDebugMode()) System.out.println("Damaging player @DayTick:" + time + " Intensity:" + solarIntensity + " Burntime:" + burnTime + " Damage:" + sunDamage);
 
         player.attackEntityFrom(damageSource, (float) sunDamage);
-        if (time <= 12000) player.setFire(burnTime * Configs.CONFIGS.getBurnTimeMultiplier());
+        if (time <= 12000) catchFireToPlayer(player, burnTime);
+    }
+
+    private void catchFireToPlayer(PlayerEntity player, int duration)
+    {
+        player.setFire(duration * Configs.CONFIGS.getBurnTimeMultiplier());
     }
 }

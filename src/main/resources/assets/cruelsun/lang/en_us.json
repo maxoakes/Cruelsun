@@ -1,5 +1,6 @@
 {
   "death.attack.cruelsun": "%1$s died by intense solar radiation",
+  "death.attack.cruelsun.energyarmor": "%1$s boiled to death inside of their armor",
   "generator.minecraft.cruelsun": "Scorched World",
   "biome.cruelsun.biome_scorched_forest": "Scorched Forest",
   "biome.cruelsun.biome_scorched_hills": "Scorched Foothills",
