@@ -47,6 +47,7 @@ public class Configs {
     private final ForgeConfigSpec.BooleanValue doWorldDamage;
     private final ForgeConfigSpec.BooleanValue doMobDamage;
     private final ForgeConfigSpec.ConfigValue<List<? extends String>> hazmatArmorStrings;
+    private final ForgeConfigSpec.ConfigValue<List<? extends String>> allowedWorlds;
 
     public int getBurnSafetyTime() {return secondsAfterSpawnUntilBurn.get();}
     public int getArmorDamageRate() {return armorDamageRate.get();}
@@ -66,6 +67,7 @@ public class Configs {
     public boolean doWorldDamage() {return  doWorldDamage.get();}
     public boolean doMobDamage() {return doMobDamage.get();}
     public List<? extends String> getHazmatStrings() {return hazmatArmorStrings.get();}
+    public List<? extends String> getAllowedWorlds() {return allowedWorlds.get();}
 
     Configs(ForgeConfigSpec.Builder builder) {
         builder.push("Configs");
@@ -168,6 +170,12 @@ public class Configs {
                 .comment("List of keywords in an armor piece that are considered 'hazmat'. These will offer more base protection in the sun.\n"+
                         "Default is: 'hazmat', 'rubber','scuba'")
                 .defineList("hazmatArmorStrings", ImmutableList.of("hazmat","rubber","scuba"), it -> it instanceof String);
+
+        allowedWorlds = builder
+                .comment("List of worlds that this mod is active.\n"+
+                        "Default is: minecraft:overworld")
+                .defineList("allowedWorlds", ImmutableList.of("minecraft:overworld"), it -> it instanceof String);
+
 
         builder.pop();
     }

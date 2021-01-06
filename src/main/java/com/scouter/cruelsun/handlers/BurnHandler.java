@@ -14,7 +14,6 @@ import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.LightType;
-import net.minecraft.world.World;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -38,7 +37,21 @@ public class BurnHandler
         if (!(event.player.getEntityWorld().getDayTime()%TPS==0)) return; //do not need to use the tick helper if nothing is happening this tick
         PlayerEntity player = event.player;
 
-        if (player.getEntityWorld().getDimensionKey() != World.OVERWORLD) return; //this mod will only work in the Overworld
+        //if (player.getEntityWorld().getDimensionKey() != World.OVERWORLD) return; //this mod will only work in the Overworld
+        String currentWorld = event.player.getEntityWorld().getDimensionKey().getLocation().toString();
+        for (String w : Configs.CONFIGS.getAllowedWorlds())
+        {
+            if (Configs.CONFIGS.isDebugMode())
+                System.out.println("Checking current world "+currentWorld+". Comparing to config list element: "+w);
+            if (currentWorld.equals(w))
+            {
+                if (Configs.CONFIGS.isDebugMode()) System.out.println("In whitelisted world for burning");
+            }
+            else
+            {
+                if (Configs.CONFIGS.isDebugMode()) System.out.println("Not in whitelisted world for burning");
+            }
+        }
         if (event.player.world.isNightTime() && Configs.CONFIGS.doDayDamageOnly()) return; //check if it is night time, and if the configs call for damage during only the day
 
         if (CommandSetBurn.getCommandState() == CommandSetBurn.CommandState.PAUSE) return; //check if command has been activated this session
