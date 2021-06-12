@@ -69,7 +69,7 @@ public class BurnHandler
         if (event.player.world.isNightTime() && Configs.CONFIGS.doDayDamageOnly()) return; //check if it is night time, and if the configs call for damage during only the day
 
         if (CommandSetBurn.getCommandState() == CommandSetBurn.CommandState.PAUSE) return; //check if command has been activated this session
-        if (player.world.getGameTime() < Configs.CONFIGS.ticksToFirstBurn())
+        if ((player.world.getGameTime() < Configs.CONFIGS.ticksToFirstBurn()) && CommandSetBurn.getCommandState() == CommandSetBurn.CommandState.NORMAL)
         {
             int secondsToBurn = (int)(Configs.CONFIGS.ticksToFirstBurn() - (player.world.getGameTime()))/20;
             if (Configs.CONFIGS.isDebugMode()) System.out.println("Seconds until burn: " + secondsToBurn);

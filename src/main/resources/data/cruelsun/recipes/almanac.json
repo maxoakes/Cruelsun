@@ -1,22 +1,22 @@
 {
+  "type": "minecraft:crafting_shaped",
   "result": {
     "item": "cruelsun:almanac"
   },
-  "type": "minecraft:crafting_shaped",
   "pattern": [
-    " b ",
-    "aca",
+    " c ",
+    "aba",
     " a "
   ],
   "key": {
     "a": {
-      "tag": "minecraft:paper"
+      "item": "minecraft:paper"
     },
     "b": {
-      "tag": "minecraft:clock"
+      "item": "minecraft:clock"
     },
     "c": {
-      "tag": "minecraft:book"
+      "item": "minecraft:book"
     }
   }
 }
