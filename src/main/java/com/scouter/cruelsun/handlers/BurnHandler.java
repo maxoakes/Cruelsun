@@ -30,8 +30,6 @@ public class BurnHandler
 {
     DamageSource damageSource = new DamageSource("cruelsun").setDamageBypassesArmor().setDifficultyScaled();
     private final int TPS = 20;
-    private final int SPAWN_PROTECTION_WARNING_INTERVAL = 5;
-    private final int DAY_PROTECTION_WARNING_INTERVAL = 20;
 
     @SubscribeEvent
     public void onPlayerTickEvent(PlayerTickEvent event)
@@ -45,7 +43,7 @@ public class BurnHandler
         if (player.ticksExisted <= Configs.CONFIGS.getBurnSafetyTime()*TPS)
         {
             int secondsToBurn = Configs.CONFIGS.getBurnSafetyTime() - (player.ticksExisted/20);
-            if (secondsToBurn % SPAWN_PROTECTION_WARNING_INTERVAL == 0)
+            if (secondsToBurn % Configs.CONFIGS.getSpawnProtectionWarningInterval() == 0)
                 player.sendMessage(new TranslationTextComponent("cruelsun.timer.spawn.safety.status", secondsToBurn), player.getUniqueID());
             if (secondsToBurn <= 1)
                 player.sendMessage(new TranslationTextComponent("cruelsun.timer.spawn.safety.start"), player.getUniqueID());
@@ -73,7 +71,7 @@ public class BurnHandler
         {
             int secondsToBurn = (int)(Configs.CONFIGS.ticksToFirstBurn() - (player.world.getGameTime()))/20;
             if (Configs.CONFIGS.isDebugMode()) System.out.println("Seconds until burn: " + secondsToBurn);
-            if (secondsToBurn % DAY_PROTECTION_WARNING_INTERVAL == 0)
+            if (secondsToBurn % Configs.CONFIGS.getFirstDayProtectionWarningInterval() == 0)
                 player.sendMessage(new TranslationTextComponent("cruelsun.timer.firstday.safety.status", secondsToBurn), player.getUniqueID());
             if (secondsToBurn == 0)
                 player.sendMessage(new TranslationTextComponent("cruelsun.timer.firstday.safety.start"), player.getUniqueID());

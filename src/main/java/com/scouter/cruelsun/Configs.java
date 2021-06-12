@@ -30,12 +30,14 @@ public class Configs {
     }
 
     private final ForgeConfigSpec.IntValue secondsAfterSpawnUntilBurn;
+    private final ForgeConfigSpec.IntValue spawnProtectionWarningInterval;
     private final ForgeConfigSpec.IntValue armorDamageRate;
     private final ForgeConfigSpec.IntValue minLightToDamagePlayer;
     private final ForgeConfigSpec.IntValue burnTimeMultiplier;
     private final ForgeConfigSpec.IntValue damageMultiplier;
     private final ForgeConfigSpec.IntValue enchantmentProtectionMultiplier;
     private final ForgeConfigSpec.IntValue ticksToFirstBurn;
+    private final ForgeConfigSpec.IntValue firstDayProtectionWarningInterval;
     private final ForgeConfigSpec.IntValue energyArmorDrainRate;
     private final ForgeConfigSpec.BooleanValue dayDamageOnly;
     private final ForgeConfigSpec.BooleanValue wetStopsBurn;
@@ -51,12 +53,14 @@ public class Configs {
     private final ForgeConfigSpec.ConfigValue<List<? extends String>> allowedWorlds;
 
     public int getBurnSafetyTime() {return secondsAfterSpawnUntilBurn.get();}
+    public int getSpawnProtectionWarningInterval() {return spawnProtectionWarningInterval.get();}
     public int getArmorDamageRate() {return armorDamageRate.get();}
     public int getMinLightToDamagePlayer() {return minLightToDamagePlayer.get();}
     public int getBurnTimeMultiplier() {return burnTimeMultiplier.get();}
     public int getDamageMultiplier() {return damageMultiplier.get();}
     public int getEnchantmentProtectionMultiplier() {return enchantmentProtectionMultiplier.get();}
     public int ticksToFirstBurn() {return ticksToFirstBurn.get();}
+    public int getFirstDayProtectionWarningInterval() {return firstDayProtectionWarningInterval.get();}
     public int getEnergyArmorDrainRate() {return energyArmorDrainRate.get();}
     public boolean doDayDamageOnly() {return dayDamageOnly.get();}
     public boolean doesWaterStopBurn() {return wetStopsBurn.get();}
@@ -78,6 +82,11 @@ public class Configs {
                 .comment("Seconds after spawning (into server or after respawn) that damage and/or burning starts.\n" +
                         "45 is default.")
                 .defineInRange("secondsAfterSpawnUntilBurn", 45, 0, Integer.MAX_VALUE);
+
+        spawnProtectionWarningInterval = builder
+                .comment("How many seconds between each notification of how many seconds remain for spawn protection.\n" +
+                        "10 is default.")
+                .defineInRange("spawnProtectionWarningInterval", 10, 0, Integer.MAX_VALUE);
 
         armorDamageRate = builder
                 .comment("Whenever an armor piece gets damaged, it takes this many durability damage.\n"+
@@ -162,6 +171,11 @@ public class Configs {
                 .comment("How many ticks until damage starts.\n"+
                         "Default is 13188 (which is sunset of first day)")
                 .defineInRange("ticksToFirstBurn", 13188, 0, Integer.MAX_VALUE);
+
+        firstDayProtectionWarningInterval = builder
+                .comment("How many seconds between each notification of how many seconds remain for the first-day protection.\n" +
+                        "30 is default.")
+                .defineInRange("firstDayProtectionWarningInterval", 30, 0, Integer.MAX_VALUE);
 
         debug = builder
                 .comment("Enable debug mode. Will spam the console with System.out.println info about damage taken\n" +

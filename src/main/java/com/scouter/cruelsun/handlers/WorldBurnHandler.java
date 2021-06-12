@@ -44,7 +44,15 @@ public class WorldBurnHandler {
         //if the command has been triggered to start the burn, the ticksToFirstBurn will be ignored
 
         //4 = new moon. Check if it is a new moon
-        if ((Configs.CONFIGS.isNewMoonSafe() && event.world.getMoonPhase() == 4) && event.world.isNightTime()) return;
+        if (event.world.isRemote())
+        {
+            System.out.println("is remote");
+        }
+        try
+        {
+            if ((Configs.CONFIGS.isNewMoonSafe() && event.world.getMoonPhase() == 4) && event.world.isNightTime())
+                return;
+        } catch (NoSuchMethodError unused) {/*do nothing*/}
 
         if (!(time%TPS==0)) return;
 
