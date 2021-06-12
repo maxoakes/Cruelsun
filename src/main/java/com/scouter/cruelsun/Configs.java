@@ -46,6 +46,7 @@ public class Configs {
     private final ForgeConfigSpec.BooleanValue doPlayerDamage;
     private final ForgeConfigSpec.BooleanValue doWorldDamage;
     private final ForgeConfigSpec.BooleanValue doMobDamage;
+    private final ForgeConfigSpec.BooleanValue isNewMoonSafe;
     private final ForgeConfigSpec.ConfigValue<List<? extends String>> hazmatArmorStrings;
     private final ForgeConfigSpec.ConfigValue<List<? extends String>> allowedWorlds;
 
@@ -66,6 +67,7 @@ public class Configs {
     public boolean doPlayerDamage() {return doPlayerDamage.get();}
     public boolean doWorldDamage() {return  doWorldDamage.get();}
     public boolean doMobDamage() {return doMobDamage.get();}
+    public boolean isNewMoonSafe() {return isNewMoonSafe.get();}
     public List<? extends String> getHazmatStrings() {return hazmatArmorStrings.get();}
     public List<? extends String> getAllowedWorlds() {return allowedWorlds.get();}
 
@@ -166,6 +168,12 @@ public class Configs {
                         "Default is false.")
                 .define("debug", false);
 
+        isNewMoonSafe = builder
+                .comment("Is it safe to go outside unprotected when there is a new moon (no light from the sun on \n" +
+                        "the visible surface of the moon)?\n" +
+                        "Default is true.")
+                .define("isNewMoonSafe", true);
+
         hazmatArmorStrings = builder
                 .comment("List of keywords in an armor piece that are considered 'hazmat'. These will offer more base protection in the sun.\n"+
                         "Default is: 'hazmat', 'rubber','scuba'")
@@ -175,7 +183,6 @@ public class Configs {
                 .comment("List of worlds that this mod is active.\n"+
                         "Default is: minecraft:overworld")
                 .defineList("allowedWorlds", ImmutableList.of("minecraft:overworld"), it -> it instanceof String);
-
 
         builder.pop();
     }

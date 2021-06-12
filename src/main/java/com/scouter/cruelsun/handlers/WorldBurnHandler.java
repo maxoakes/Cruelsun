@@ -43,6 +43,9 @@ public class WorldBurnHandler {
                 (CommandSetBurn.getCommandState() != CommandSetBurn.CommandState.START)) return; //protection for the first day of the world
         //if the command has been triggered to start the burn, the ticksToFirstBurn will be ignored
 
+        //4 = new moon. Check if it is a new moon
+        if ((Configs.CONFIGS.isNewMoonSafe() && event.world.getMoonPhase() == 4) && event.world.isNightTime()) return;
+
         if (!(time%TPS==0)) return;
 
         List<Chunk> loadedChunks = new ArrayList<>();

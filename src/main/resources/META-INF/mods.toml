@@ -14,7 +14,7 @@ license="GNU GPLv3"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
 modId="cruelsun" #mandatory
-version="1.0 for 1.16.4" #mandatory
+version="1.2 for 1.16.4" #mandatory
 displayName="Cruel Sun" #mandatory
 #updateJSONURL="http://myurl.me/" #optional
 #displayURL="http://example.com/" #optional

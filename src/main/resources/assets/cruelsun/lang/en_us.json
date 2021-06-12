@@ -1,12 +1,24 @@
 {
+  "item.cruelsun.almanac": "Lunar Almanac",
+
   "death.attack.cruelsun": "%1$s died by intense solar radiation",
-  "death.attack.cruelsun.energyarmor": "%1$s boiled to death inside of their armor",
+  "death.attack.cruelsun.energyarmor": "%1$s got charred inside of their armor",
+
   "generator.minecraft.cruelsun": "Scorched World",
   "biome.cruelsun.biome_scorched_forest": "Scorched Forest",
   "biome.cruelsun.biome_scorched_hills": "Scorched Foothills",
   "biome.cruelsun.biome_scorched_plains": "Scorched Floodplains",
+
+  "cruelsun.almanac.day": "It is %1$s, and the lunar almanac says it should be a %2$s moon tonight.",
+  "cruelsun.almanac.night": "It is %1$s, and the lunar almanac says it should be a %2$s moon right now.",
+
+  "cruelsun.timer.spawn.safety.status": "Spawn protection from the cruel sun expires in %1$s seconds",
+  "cruelsun.timer.spawn.safety.start": "Spawn protection from the cruel sun has expired",
+  "cruelsun.timer.firstday.safety.status": "Sunlight will start to damage you in %1$s seconds",
+  "cruelsun.timer.firstday.safety.start": "The sun has started an intense solar cycle, and you will now take damage if you go into the sunlight",
+
   "cruelsun.command.start.help.start": "start: Start the burning of players, mobs and world, whichever the configs allow to be burnt",
-  "cruelsun.command.start.help.pause": "pause: Stop all burning until server reset",
+  "cruelsun.command.start.help.pause": "pause: Stop all burning until server reset or done manually",
   "cruelsun.command.start.help.resume": "resume: Default upon server start. Burning will not occur until the number of ticks that the world has existed exceeds \"ticksToFirstBurn\" in the config file",
   "cruelsun.command.start": "CruelSun burning has been enabled",
   "cruelsun.command.pause": "CruelSun burning has been paused",

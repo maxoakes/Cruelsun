@@ -8,6 +8,7 @@ import com.scouter.cruelsun.commands.CommandSetBurn;
 import com.scouter.cruelsun.features.FeatureRegister;
 import com.scouter.cruelsun.handlers.BurnHandler;
 import com.scouter.cruelsun.handlers.WorldBurnHandler;
+import com.scouter.cruelsun.items.ItemRegister;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -46,10 +47,10 @@ public class CruelSun
         forgeBus.register(this);
 
         //Register Objects
+        ItemRegister.ITEMS.register(modBus);
         FeatureRegister.FEATURES.register(modBus);
         BiomeRegister.BIOMES.register(modBus);
         registerWorldType();
-
     }
 
     //register commands

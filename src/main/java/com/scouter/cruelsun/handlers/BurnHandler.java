@@ -13,6 +13,7 @@ import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.LightType;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -29,38 +30,65 @@ public class BurnHandler
 {
     DamageSource damageSource = new DamageSource("cruelsun").setDamageBypassesArmor().setDifficultyScaled();
     private final int TPS = 20;
+    private final int SPAWN_PROTECTION_WARNING_INTERVAL = 5;
+    private final int DAY_PROTECTION_WARNING_INTERVAL = 20;
 
     @SubscribeEvent
     public void onPlayerTickEvent(PlayerTickEvent event)
     {
+        PlayerEntity player = event.player;
+        if (event.side.isClient() || event.phase == TickEvent.Phase.END) return; //back-end safety
         if (!Configs.CONFIGS.doPlayerDamage()) return; //initial check to see if the configs even want to do damage to player
         if (!(event.player.getEntityWorld().getDayTime()%TPS==0)) return; //do not need to use the tick helper if nothing is happening this tick
-        PlayerEntity player = event.player;
+        if (player.isCreative() || player.isSpectator()) return; //general safety
 
-        //if (player.getEntityWorld().getDimensionKey() != World.OVERWORLD) return; //this mod will only work in the Overworld
+        if (player.ticksExisted <= Configs.CONFIGS.getBurnSafetyTime()*TPS)
+        {
+            int secondsToBurn = Configs.CONFIGS.getBurnSafetyTime() - (player.ticksExisted/20);
+            if (secondsToBurn % SPAWN_PROTECTION_WARNING_INTERVAL == 0)
+                player.sendMessage(new TranslationTextComponent("cruelsun.timer.spawn.safety.status", secondsToBurn), player.getUniqueID());
+            if (secondsToBurn <= 1)
+                player.sendMessage(new TranslationTextComponent("cruelsun.timer.spawn.safety.start"), player.getUniqueID());
+            return;
+        }
+
+        boolean isInSafeWorld = false;
         String currentWorld = event.player.getEntityWorld().getDimensionKey().getLocation().toString();
         for (String w : Configs.CONFIGS.getAllowedWorlds())
         {
-            if (Configs.CONFIGS.isDebugMode())
-                System.out.println("Checking current world "+currentWorld+". Comparing to config list element: "+w);
             if (currentWorld.equals(w))
             {
-                if (Configs.CONFIGS.isDebugMode()) System.out.println("In whitelisted world for burning");
+                if (Configs.CONFIGS.isDebugMode()) System.out.println("Current world is in whitelist");
+                break;
             }
-            else
-            {
-                if (Configs.CONFIGS.isDebugMode()) System.out.println("Not in whitelisted world for burning");
-            }
+            isInSafeWorld = true;
+            if (Configs.CONFIGS.isDebugMode()) System.out.println("Current world is not on whitelist");
         }
+        if (isInSafeWorld) return; //if the world is not on the whitelist of burning worlds, stop checking
+
         if (event.player.world.isNightTime() && Configs.CONFIGS.doDayDamageOnly()) return; //check if it is night time, and if the configs call for damage during only the day
 
         if (CommandSetBurn.getCommandState() == CommandSetBurn.CommandState.PAUSE) return; //check if command has been activated this session
-        if (player.world.getGameTime() < Configs.CONFIGS.ticksToFirstBurn() &&
-                (CommandSetBurn.getCommandState() != CommandSetBurn.CommandState.START)) return; //protection for the first day of the world
+        if (player.world.getGameTime() < Configs.CONFIGS.ticksToFirstBurn())
+        {
+            int secondsToBurn = (int)(Configs.CONFIGS.ticksToFirstBurn() - (player.world.getGameTime()))/20;
+            if (Configs.CONFIGS.isDebugMode()) System.out.println("Seconds until burn: " + secondsToBurn);
+            if (secondsToBurn % DAY_PROTECTION_WARNING_INTERVAL == 0)
+                player.sendMessage(new TranslationTextComponent("cruelsun.timer.firstday.safety.status", secondsToBurn), player.getUniqueID());
+            if (secondsToBurn == 0)
+                player.sendMessage(new TranslationTextComponent("cruelsun.timer.firstday.safety.start"), player.getUniqueID());
+            return; //protection for the first day of the world
+        }
         //if the command has been triggered to start the burn, the ticksToFirstBurn will be ignored
 
-        if (player.isCreative() || player.isSpectator() || (player.ticksExisted <= Configs.CONFIGS.getBurnSafetyTime()*TPS)) return; //general safety
-        if (event.side.isClient() || event.phase == TickEvent.Phase.END) return; //back-end safety
+        //4 = new moon. Check if it is a new moon
+        if ((Configs.CONFIGS.isNewMoonSafe() && player.getEntityWorld().getMoonPhase() == 4) && player.getEntityWorld().isNightTime())
+        {
+            if (Configs.CONFIGS.isDebugMode()) System.out.println("The player is safe in the new moon.");
+            return;
+        }
+
+        System.out.println("Moon phase: " + player.getEntityWorld().getMoonPhase());
         if (Configs.CONFIGS.doesWaterStopBurn() && player.isWet()) return; //check if the player is wet this tick, or check if the configs even support that
         damageConditionCheck(player); //do the damage
     }
