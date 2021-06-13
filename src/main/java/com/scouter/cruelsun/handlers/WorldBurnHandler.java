@@ -3,12 +3,10 @@ package com.scouter.cruelsun.handlers;
 import com.scouter.cruelsun.Configs;
 import com.scouter.cruelsun.CruelSun;
 import com.scouter.cruelsun.commands.CommandSetBurn;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ClassInheritanceMultiMap;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -33,28 +31,47 @@ public class WorldBurnHandler {
     @SubscribeEvent
     public void onWorldTickEvent(TickEvent.WorldTickEvent event)
     {
+        /* Global Checks */
+        //only run every second. Pretty efficient
+        if (!(event.world.getDayTime()%TPS==0)) return;
+
+
+
+        //check what side this method is being run on
         if (event.world.isRemote()) return;
-        if (event.world.getDimensionKey() != World.OVERWORLD || event.phase == TickEvent.Phase.END) return;
+        if (event.phase == TickEvent.Phase.END) return;
 
-        long time = event.world.getDayTime()%24000;
-        if (event.world.isNightTime() && Configs.CONFIGS.doDayDamageOnly()) return; //does night cause damage too?
-
-        if (CommandSetBurn.getCommandState() == CommandSetBurn.CommandState.PAUSE) return; //check if command has been activated this session
-        if ((event.world.getGameTime() < Configs.CONFIGS.ticksToFirstBurn()) &&
-                (CommandSetBurn.getCommandState() != CommandSetBurn.CommandState.START)) return; //protection for the first day of the world
-        //if the command has been triggered to start the burn, the ticksToFirstBurn will be ignored
-
-        //4 = new moon. Check if it is a new moon
-        try {
-            if ((Configs.CONFIGS.isNewMoonSafe() && event.world.getMoonPhase() == 4) && event.world.isNightTime())
-                return;
-        }
-        catch (NoSuchMethodError e)
+        //check if the current world is on the whitelist from the configs
+        boolean doesThisWorldBurn = false;
+        String currentWorld = event.world.getDimensionKey().getLocation().toString();
+        for (String worlds : Configs.CONFIGS.getAllowedWorlds())
         {
-            return;
+            if (currentWorld.equals(worlds))
+            {
+                if (Configs.CONFIGS.isDebugMode()) System.out.println("Current world is in whitelist");
+                doesThisWorldBurn = true;
+                break;
+            }
+            if (Configs.CONFIGS.isDebugMode()) System.out.println("Current world is not on whitelist");
         }
+        if (!doesThisWorldBurn) return;
 
-        if (!(time%TPS==0)) return;
+        //check if command has been activated this session
+        if (CommandSetBurn.getCommandState() == CommandSetBurn.CommandState.PAUSE) return;
+
+        //check if the world should be burning now
+        if ((event.world.getGameTime() < Configs.CONFIGS.ticksToFirstBurn()) &&
+                (CommandSetBurn.getCommandState() != CommandSetBurn.CommandState.START)) return;
+
+        //check if it is a current new moon
+        if ((Configs.CONFIGS.isNewMoonSafe() && event.world.getMoonPhase() == 4) && event.world.isNightTime()) return;
+
+        //for each loaded entity
+        List<PlayerEntity> players = new ArrayList<>();
+        players = (List<PlayerEntity>) event.world.getPlayers();
+        long time = event.world.getDayTime()%24000;
+
+        if (event.world.isNightTime() && Configs.CONFIGS.doDayDamageOnly()) return; //does night cause damage too?
 
         List<Chunk> loadedChunks = new ArrayList<>();
         for (PlayerEntity p : event.world.getPlayers()) loadedChunks.addAll(getRadiusChunks(event.world, p, radius));
@@ -86,24 +103,6 @@ public class WorldBurnHandler {
 
             //damage each mob
             for (Entity e : livingMobs) damageEntity(e);
-        }
-
-        /*
-         * The following code is only used if the configs call for flammable blocks to be damaged
-         * */
-        if (Configs.CONFIGS.doWorldDamage())
-        {
-            if (loadedChunks.isEmpty()) return;
-            Chunk c = loadedChunks.get(random.nextInt(loadedChunks.size()));
-            if (random.nextDouble()>fireSpawnChancePerSecond) return;
-            int x = ((c.getPos().x)* CHUNK_SIZE)+random.nextInt(CHUNK_SIZE);
-            int z = ((c.getPos().z)* CHUNK_SIZE)+random.nextInt(CHUNK_SIZE);
-            int y = 255;
-            BlockPos pos = new BlockPos(x, y, z);
-            while (event.world.isAirBlock(pos)) pos = pos.down(); //moves the block downward until it is not in the air anymore
-            pos = pos.up(); //places on the surface of the aforementioned position
-            event.world.setBlockState(pos,Blocks.FIRE.getDefaultState()); //add the fire block
-            if (Configs.CONFIGS.isDebugMode()) System.out.println("Added fire block to: "+c.getPos()+": "+x+","+z);
         }
     }
 

@@ -6,8 +6,7 @@ import com.scouter.cruelsun.biomes.CSBiomeProvider;
 import com.scouter.cruelsun.biomes.CSWorldType;
 import com.scouter.cruelsun.commands.CommandSetBurn;
 import com.scouter.cruelsun.features.FeatureRegister;
-import com.scouter.cruelsun.handlers.BurnHandler;
-import com.scouter.cruelsun.handlers.WorldBurnHandler;
+import com.scouter.cruelsun.handlers.DamageHandler;
 import com.scouter.cruelsun.items.ItemRegister;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
@@ -41,8 +40,7 @@ public class CruelSun
         modBus.addListener(this::setupBiomes);
 
         //Register Handlers
-        forgeBus.register(new BurnHandler());
-        forgeBus.register(new WorldBurnHandler());
+        forgeBus.register(new DamageHandler());
         forgeBus.addListener(this::registerCommands);
         forgeBus.register(this);
 

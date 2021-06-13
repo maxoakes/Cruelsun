@@ -9,8 +9,8 @@
   "biome.cruelsun.biome_scorched_hills": "Scorched Foothills",
   "biome.cruelsun.biome_scorched_plains": "Scorched Floodplains",
 
-  "cruelsun.almanac.day": "It is %1$s, and the lunar almanac says it should be a %2$s moon tonight.",
-  "cruelsun.almanac.night": "It is %1$s, and the lunar almanac says it should be a %2$s moon right now.",
+  "cruelsun.almanac.day": "It is currently %1$s, and the lunar almanac says it should be a %2$s moon tonight.",
+  "cruelsun.almanac.night": "It is currently %1$s, and the lunar almanac says it should be a %2$s moon right now.",
 
   "cruelsun.timer.spawn.safety.status": "Spawn protection from the cruel sun expires in %1$s seconds",
   "cruelsun.timer.spawn.safety.start": "Spawn protection from the cruel sun has expired",
