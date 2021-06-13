@@ -33,7 +33,8 @@ public class WorldBurnHandler {
     @SubscribeEvent
     public void onWorldTickEvent(TickEvent.WorldTickEvent event)
     {
-        if (event.world.getDimensionKey() != World.OVERWORLD || event.side.isClient() || event.phase == TickEvent.Phase.END) return;
+        if (event.world.isRemote()) return;
+        if (event.world.getDimensionKey() != World.OVERWORLD || event.phase == TickEvent.Phase.END) return;
 
         long time = event.world.getDayTime()%24000;
         if (event.world.isNightTime() && Configs.CONFIGS.doDayDamageOnly()) return; //does night cause damage too?
@@ -44,15 +45,14 @@ public class WorldBurnHandler {
         //if the command has been triggered to start the burn, the ticksToFirstBurn will be ignored
 
         //4 = new moon. Check if it is a new moon
-        if (event.world.isRemote())
-        {
-            System.out.println("is remote");
-        }
-        try
-        {
+        try {
             if ((Configs.CONFIGS.isNewMoonSafe() && event.world.getMoonPhase() == 4) && event.world.isNightTime())
                 return;
-        } catch (NoSuchMethodError unused) {/*do nothing*/}
+        }
+        catch (NoSuchMethodError e)
+        {
+            return;
+        }
 
         if (!(time%TPS==0)) return;
 

@@ -35,7 +35,8 @@ public class BurnHandler
     public void onPlayerTickEvent(PlayerTickEvent event)
     {
         PlayerEntity player = event.player;
-        if (event.side.isClient() || event.phase == TickEvent.Phase.END) return; //back-end safety
+        if (player.getEntityWorld().isRemote()) return;
+        if (event.phase == TickEvent.Phase.END) return; //back-end safety
         if (!Configs.CONFIGS.doPlayerDamage()) return; //initial check to see if the configs even want to do damage to player
         if (!(event.player.getEntityWorld().getDayTime()%TPS==0)) return; //do not need to use the tick helper if nothing is happening this tick
         if (player.isCreative() || player.isSpectator()) return; //general safety
@@ -80,13 +81,17 @@ public class BurnHandler
         //if the command has been triggered to start the burn, the ticksToFirstBurn will be ignored
 
         //4 = new moon. Check if it is a new moon
-        if ((Configs.CONFIGS.isNewMoonSafe() && player.getEntityWorld().getMoonPhase() == 4) && player.getEntityWorld().isNightTime())
+        try {
+            if ((Configs.CONFIGS.isNewMoonSafe() && player.getEntityWorld().getMoonPhase() == 4) && player.getEntityWorld().isNightTime()) {
+                if (Configs.CONFIGS.isDebugMode()) System.out.println("The player is safe in the new moon.");
+                return;
+            }
+        }
+        catch (NoSuchMethodError e)
         {
-            if (Configs.CONFIGS.isDebugMode()) System.out.println("The player is safe in the new moon.");
             return;
         }
 
-        System.out.println("Moon phase: " + player.getEntityWorld().getMoonPhase());
         if (Configs.CONFIGS.doesWaterStopBurn() && player.isWet()) return; //check if the player is wet this tick, or check if the configs even support that
         damageConditionCheck(player); //do the damage
     }
